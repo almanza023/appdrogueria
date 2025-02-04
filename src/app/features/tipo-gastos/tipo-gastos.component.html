@@ -22,6 +22,7 @@
             <p-toast></p-toast>
             <p-table #dt [value]="data" [columns]="cols" [rows]="10" [globalFilterFields]="[
                     'descripcion',
+                    'periodicidad',
                     'id',
                     'estado',
                 ]" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10, 20, 30]" [showCurrentPageReport]="true" [rowHover]="true" responsiveLayout="scroll" currentPageReportTemplate="Mostrando {first} to {last} de {totalRecords} registros" dataKey="id">
@@ -52,6 +53,10 @@
                             Descripción
                             <p-sortIcon field="descripcion"></p-sortIcon>
                         </th>
+                        <th pSortableColumn="periodicidad">
+                            Periodicidad
+                            <p-sortIcon field="periodicidad"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="estado">
                             Estado
                             <p-sortIcon field="estado"></p-sortIcon>
@@ -70,6 +75,9 @@
                         <td style="width: 54%; min-width: 10rem">
                             <span class="p-column-title">Descripción</span> {{ item.descripcion }}
                         </td>
+                        <td style="width: 54%; min-width: 10rem">
+                            <span class="p-column-title">Periodicidad</span> {{ item.periodicidad }}
+                        </td>
                         <td style="width: 26%; min-width: 10rem">
                             <span class="p-column-title">Estado</span> {{ item.estado=="1"?'ACTIVO':'BLOQUEADO'}}
                         </td>
@@ -86,7 +94,7 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="clienteDialog" [style]="{width: '450px'}" [modal]="true" header class="p-fluid">
+        <p-dialog [(visible)]="clienteDialog" [style]="{width: '450px', height: 'auto'}" [modal]="true" header class="p-fluid">
             <div class="grid">
                 <div class="col-12">
                     <div class="card p-fluid">
@@ -102,19 +110,27 @@
 								<b>Nombre</b>
 							</label>
                             <div class="col-12 md:col-12">
-
-                                <input type="text" pInputText [(ngModel)]="tipopartido.nombre" />
-
+                                <input type="text" pInputText [(ngModel)]="tipogasto.nombre" />
                             </div>
                         </div>
+
                         <div class="field grid">
                             <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-								<b>Descripcion</b>
-							</label>
+                                <b>Descripción</b>
+                            </label>
                             <div class="col-12 md:col-12">
+                                <textarea pInputTextarea [(ngModel)]="tipogasto.descripcion" rows="3"></textarea>
+                            </div>
+                        </div>
 
-                                <input type="text" pInputText [(ngModel)]="tipopartido.descripcion" />
 
+                        <div class="field grid">
+                            <label htmlFor="periodicidad" class="col-12 mb-1 md:col-1 md:mb-0">
+                                <b>Periodicidad</b>
+                            </label>
+                            <div class="col-12 md:col-12">
+                                <p-dropdown appendTo="body" [options]="periodicidadOptions" [(ngModel)]="tipogasto.periodicidad" optionLabel="label" optionValue="value" placeholder="Seleccione la periodicidad">
+                                </p-dropdown>
                             </div>
                         </div>
 
@@ -131,10 +147,10 @@
         <p-dialog [(visible)]="deleteProductDialog" [modal]="true" [style]="{ width: '450px' }" header="Confirmar">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="tipopartido">
+                <span *ngIf="tipogasto">
 					Esta seguro de Cambiar el estado al Registro
 					<b>
-						{{ tipopartido.nombre }}
+						{{ tipogasto.nombre }}
 					</b>
 					?
 				</span>

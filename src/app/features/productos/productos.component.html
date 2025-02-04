@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<app-loading *ngIf="loading"></app-loading>
 <div class="grid">
     <div class="col-12">
         <div class="card p-fluid">
@@ -24,6 +25,11 @@
 <div class="grid">
     <div class="col-12">
         <div class="card px-6 py-6">
+            <div class="grid justify-content-end">
+                <p-button label="Exportar" icon="pi pi-file" (click)="exportarPDF()" styleClass="p-button-success"></p-button>
+            </div>
+
+
             <p-table
                 #dt
                 [value]="data"
@@ -61,9 +67,17 @@
                             Categoria
                             <p-sortIcon field="categoria.nombre"></p-sortIcon>
                         </th>
+                        <th pSortableColumn="categoria.nombre">
+                            Distribuidor
+                            <p-sortIcon field="proveedor.nombre"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="nombre">
                             Nombre
                             <p-sortIcon field="nombre"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="laboratorio">
+                            Laboratorio
+                            <p-sortIcon field="laboratorio"></p-sortIcon>
                         </th>
                         <th pSortableColumn="descripcion">
                             Descripción
@@ -74,7 +88,11 @@
                             <p-sortIcon field="precio"></p-sortIcon>
                         </th>
                         <th pSortableColumn="stock_actual">
-                            Stock Actual
+                            Stock General
+                            <p-sortIcon field="stock_actual"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="stock_actual">
+                            Stock Por Bodegas
                             <p-sortIcon field="stock_actual"></p-sortIcon>
                         </th>
                         <th pSortableColumn="fecha_vencimiento">
@@ -89,14 +107,22 @@
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
-                    <tr>
+                    <tr [ngStyle]="{'background-color': item.etiqueta_vencimiento === 'Verde' ? '#abebc6' : item.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : item.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
                         <td style="width: 10%; min-width: 10rem">
                             <span class="p-column-title">Categoria</span>
                             {{ item.categoria.nombre }}
                         </td>
+                        <td style="width: 10%; min-width: 10rem">
+                            <span class="p-column-title">Distribuidor</span>
+                            {{ item.proveedor?.nombre }}
+                        </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Nombre</span>
                             {{ item.nombre }}
+                        </td>
+                        <td style="width: 32%; min-width: 10rem">
+                            <span class="p-column-title">Laboratorio</span>
+                            {{ item.laboratorio }}
                         </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Descripción</span>
@@ -112,9 +138,17 @@
                             {{ item.stock_actual }}
                         </td>
 
+                        <td>
+                            <ul>
+                                <li *ngFor="let bodega of item.bodegas">
+                                    <b>{{ bodega.bodega?.nombre }}: </b>{{ bodega.cantidad }}
+                                </li>
+                            </ul>
+                        </td>
+
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Fecha Vencimiento</span>
-                            {{ item.fecha_vencimiento | date }}
+                            {{ item.fecha_vencimiento | date:'dd/MM/yyyy' }}
                         </td>
 
                         <td style="width: 26%; min-width: 10rem">
@@ -123,25 +157,41 @@
                         </td>
                         <td>
                             <div class="flex">
-                                <button
-                                    (click)="editProduct(item)"
-                                    pButton
-                                    pRipple
-                                    icon="pi pi-pencil"
-                                    class="p-button-rounded p-button-success mr-2"
-                                ></button>
-                                <p-button
-                                    (click)="bloqueoCliente(item)"
-                                    icon="pi pi-check"
-                                    styleClass="p-button-rounded p-button-warning"
-                                ></p-button>
+                                <div style="display: flex; flex-direction: column">
+                                    <button
+                                        (click)="editProduct(item)"
+                                        pButton
+                                        pRipple
+                                        icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-success mb-2 p-button-sm"
+                                        label="Editar"
+                                    ></button>
+                                    <button
+                                        (click)="verHistorialMovimiento(item.id, item.nombre)"
+                                        pButton
+                                        pRipple
+                                        icon="pi pi-history"
+                                        class="p-button-rounded p-button-info mb-2 p-button-sm"
+                                        label="Historial"
+                                    ></button>
+                                    <button
+                                        (click)="openDialog(item.id, item.nombre, item.stock_actual, item.bodegas)"
+                                        pButton
+                                        pRipple
+                                        icon="pi pi-arrow-right"
+                                        class="p-button-rounded p-button-warning mb-2 p-button-sm"
+                                        label="Trasladar"
+                                    ></button>
+                                    <button
+                                        (click)="bloqueoCliente(item)"
+                                        pButton
+                                        pRipple
+                                        icon="pi pi-times"
+                                        class="p-button-rounded p-button-danger p-button-sm"
+                                        label="Bloquear"
+                                    ></button>
 
-                                <p-button
-                                    (click)="verHistorialMovimiento(item.id, item.nombre)"
-                                    icon="pi pi-history"
-                                    styleClass="p-button-rounded p-button-info"
-                                    label="Historial de Movimiento"
-                                ></p-button>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -151,248 +201,7 @@
     </div>
 </div>
 
-<p-dialog
-    [(visible)]="clienteDialog"
-    [style]="{ width: '1100px' }"
-    [modal]="true"
-    header
-    class="p-fluid"
->
-    <div class="grid">
-        <div class="col-12">
-            <div class="card p-fluid">
-                <div class="grid">
-                    <div class="col-12 md:col-6 lg:col-6">
-                        <h3>Datos Básicos</h3>
-                    </div>
-                </div>
-                <form [formGroup]="productoForm" (ngSubmit)="saveProduct()">
-                    <div class="field grid">
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Categoria</b>
-                            </label>
-                            <app-selector-categoria
-                            (itemSeleccionado)="this.productoForm.get('categoria_id').setValue($event.id)"
-                            required></app-selector-categoria>
-                            <div
-                            *ngIf="
-                                productoForm.get('categoria_id').invalid &&
-                                (productoForm.get('categoria_id').dirty ||
-                                productoForm.get('categoria_id').touched)
-                            ">
-                            <small
-                                class="text-danger"
-                                *ngIf="productoForm.get('categoria_id').errors"
-                                >Debe seleccionar una Opción de la Lista</small>
-                         </div>
-                        </div>
 
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Proveedor</b>
-                            </label>
-                            <app-selector-proveedor
-                            (itemSeleccionado)="this.productoForm.get('proveedor_id').setValue($event.id)"
-                            required></app-selector-proveedor>
-                            <div
-                            *ngIf="
-                                productoForm.get('proveedor_id').invalid &&
-                                (productoForm.get('proveedor_id').dirty ||
-                                productoForm.get('proveedor_id').touched)
-                            ">
-                            <small
-                                class="text-danger"
-                                *ngIf="productoForm.get('proveedor_id').errors"
-                                >Debe seleccionar una Opción de la Lista</small>
-                         </div>
-                        </div>
-
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Nombre</b>
-                            </label>
-                            <input
-                                type="text"
-                                pInputText
-                                formControlName="nombre"
-                                name="nombre"
-                                required
-                            />
-                            <div *ngIf="productoForm.get('nombre')?.touched && productoForm.get('nombre')?.invalid">
-                                <div *ngIf="productoForm.get('nombre')?.errors?.['required']" class="text-red-500">
-                                    Este campo es obligatorio.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 md:col-4" >
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Código</b>
-                            </label>
-                            <input
-                                type="number"
-                                pInputText
-                                formControlName="codigo"
-                                name="codigo"
-                                required
-                            />
-                            <div *ngIf="productoForm.get('codigo')?.touched && productoForm.get('codigo')?.invalid">
-                                <div *ngIf="productoForm.get('codigo')?.errors?.['required']" class="text-red-500">
-                                    Este campo es obligatorio.
-                                </div>
-                                <div *ngIf="productoForm.get('codigo')?.errors?.['pattern']" class="text-red-500">
-                                    Ingrese un valor numérico válido.
-                                </div>
-                            </div>
-                        </div>
-
-                    <div class="field grid">
-                        <div class="col-12 md:col-4" >
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Descripción</b>
-                            </label>
-                            <textarea
-                                pInputTextarea
-                                formControlName="descripcion"
-                                rows="5"
-                                cols="30"
-                                name="descripcion"
-                                required
-                            ></textarea>
-                        </div>
-                    </div>
-
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Fecha Vencimiento</b>
-                            </label>
-                            <input
-                                type="date"
-                                pInputText
-                                formControlName="fecha_vencimiento"
-                                name="fecha_vencimiento"
-                                required
-                            />
-                        </div>
-
-                        <div class="col-12 md:col-4" *ngIf="producto.editar==false">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Laboratorio</b>
-                            </label>
-                            <input
-                                type="text"
-                                pInputText
-                                formControlName="laboratorio"
-                                name="laboratorio"
-                                required
-                            />
-                            <div *ngIf="productoForm.get('laboratorio')?.touched && productoForm.get('laboratorio')?.invalid">
-                                <div *ngIf="productoForm.get('laboratorio')?.errors?.['required']" class="text-red-500">
-                                    Este campo es obligatorio.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="image" class="mb-1">
-                                <b>N° Lote</b>
-                            </label>
-                            <input
-                                type="text"
-                                pInputText
-                                formControlName="lote"
-                                name="lote"
-                                required
-                            />
-                        </div>
-
-                        <div class="col-12 md:col-4" *ngIf="producto.editar==false">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Stock Actual</b>
-                            </label>
-                            <input
-                                type="number"
-                                pInputText
-                                formControlName="stock_actual"
-                                name="stock_actual"
-                                required
-                            />
-                            <div *ngIf="productoForm.get('stock_actual')?.touched && productoForm.get('stock_actual')?.invalid">
-                                <div *ngIf="productoForm.get('stock_actual')?.errors?.['required']" class="text-red-500">
-                                    Este campo es obligatorio.
-                                </div>
-                                <div *ngIf="productoForm.get('stock_actual')?.errors?.['pattern']" class="text-red-500">
-                                    Ingrese un valor numérico válido.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="image" class="mb-1">
-                                <b>Precio Venta</b>
-                            </label>
-                            <input
-                                type="text"
-                                pInputText
-                                formControlName="precio"
-                                name="precio"
-                                required
-                            />
-                            <div *ngIf="productoForm.get('precio')?.touched && productoForm.get('precio')?.invalid">
-                                <div *ngIf="productoForm.get('precio')?.errors?.['required']" class="text-red-500">
-                                    Este campo es obligatorio.
-                                </div>
-                                <div *ngIf="productoForm.get('precio')?.errors?.['pattern']" class="text-red-500">
-                                    Ingrese un valor numérico válido.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 md:col-4">
-                            <label htmlFor="name3" class="mb-1">
-                                <b>Ubicación</b>
-                            </label>
-                            <app-selector-ubicacion
-                            (itemSeleccionado)="this.productoForm.get('ubicacion_id').setValue($event.id)"
-                            required></app-selector-ubicacion>
-                            <div
-                            *ngIf="
-                                productoForm.get('ubicacion_id').invalid &&
-                                (productoForm.get('ubicacion_id').dirty ||
-                                productoForm.get('ubicacion_id').touched)
-                            ">
-                            <small
-                                class="text-danger"
-                                *ngIf="productoForm.get('ubicacion_id').errors"
-                                >La Opción en Tipo de Documento es requerida</small>
-                         </div>
-                        </div>
-                    </div>
-                </form>
-
-                </div>
-                </div>
-            </div>
-
-
-    <ng-template pTemplate="footer">
-        <button
-            (click)="saveProduct()"
-            pButton
-            pRipple
-            label="Guardar"
-            icon="pi pi-check"
-            class="p-button-success"
-        ></button>
-        <button
-            (click)="hideDialog()"
-            pButton
-            pRipple
-            label="Cancelar"
-            icon="pi pi-times"
-            class="p-button-danger"
-        ></button>
-    </ng-template>
-</p-dialog>
 
 <p-dialog
     [(visible)]="deleteProductDialog"
@@ -446,13 +255,13 @@
     >
         <ng-template pTemplate="header">
             <tr>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Saldo</th>
-                <th>Precio Venta</th>
-                <th>Precio Compra</th>
-                <th>Porcentaje Utilidad</th>
+                <th pSortableColumn="created_at">Fecha <p-sortIcon field="created_at"></p-sortIcon></th>
+                <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+                <th pSortableColumn="cantidad">Cantidad <p-sortIcon field="cantidad"></p-sortIcon></th>
+                <th pSortableColumn="saldo">Saldo <p-sortIcon field="saldo"></p-sortIcon></th>
+                <th pSortableColumn="precio_venta">Precio Venta <p-sortIcon field="precio_venta"></p-sortIcon></th>
+                <th pSortableColumn="precio_compra">Precio Compra <p-sortIcon field="precio_compra"></p-sortIcon></th>
+                <th pSortableColumn="utilidad">Porcentaje Utilidad <p-sortIcon field="utilidad"></p-sortIcon></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-movimiento>
@@ -479,4 +288,150 @@
         ></button>
     </ng-template>
 </p-dialog>
+
+<p-dialog [(visible)]="trasladoDialog" [style]="{ width: '1100px' }" [modal]="true" header class="p-fluid">
+    <div class="card p-fluid">
+        <h3>Traslados de Productos</h3>
+        <form [formGroup]="trasladoForm" (ngSubmit)="saveProduct()">
+            <div class="grid">
+
+                <div class="col-12 md:col-4">
+                    <label htmlFor="nombre" class="font-bold mb-2">Nombre</label>
+                    <input type="text" pInputText formControlName="nombre" readonly>
+                </div>
+
+                <div class="col-12 md:col-4">
+                    <label htmlFor="nombre" class="font-bold mb-2">Stock General</label>
+                    <input type="text" pInputText formControlName="stock_general" readonly>
+                </div>
+
+            <div class="col-12">
+                <h4>Asignar a Bodegas</h4>
+                <p-table [value]="bodegas" [columns]="['nombre', 'cantidad']">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre de Bodega</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-bodega let-i="rowIndex">
+                        <tr>
+                            <td>{{bodega.bodega?.nombre}}</td>
+                            <td>
+                                <div formArrayName="detalles">
+                                    <div *ngIf="detalle.controls.length > 0" [formGroupName]="i">
+                                        <input type="number" pInputText formControlName="cantidad" required (input)="agregarABodegaTraslado()" />
+                        <small *ngIf="detalle.at(i).get('cantidad').invalid && detalle.at(i).get('cantidad').touched" class="p-error">La cantidad es requerida</small>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            </div>
+        </form>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success mr-2" (click)="storeTraslado()"></button>
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="trasladoDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="clienteDialog" [style]="{ width: '1100px' }" [modal]="true" header class="p-fluid">
+    <div class="card p-fluid">
+        <h3>Datos Básicos del Producto</h3>
+        <form [formGroup]="productoForm" (ngSubmit)="saveProduct()">
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <label htmlFor="categoria" class="font-bold mb-2">Categoría</label>
+                    <app-selector-categoria (itemSeleccionado)="productoForm.get('categoria_id').setValue($event.id)" required></app-selector-categoria>
+                    <small *ngIf="productoForm.get('categoria_id').invalid && (productoForm.get('categoria_id').dirty || productoForm.get('categoria_id').touched)" class="p-error">Seleccione una categoría</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="proveedor" class="font-bold mb-2">Distribuidor</label>
+                    <app-selector-proveedor (itemSeleccionado)="productoForm.get('proveedor_id').setValue($event.id)" required></app-selector-proveedor>
+                    <small *ngIf="productoForm.get('proveedor_id').invalid && (productoForm.get('proveedor_id').dirty || productoForm.get('proveedor_id').touched)" class="p-error">Seleccione un proveedor</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="nombre" class="font-bold mb-2">Nombre</label>
+                    <input type="text" pInputText formControlName="nombre" (input)="copiarTexto()">
+                    <small *ngIf="productoForm.get('nombre').invalid && productoForm.get('nombre').touched" class="p-error">El nombre es obligatorio</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="codigo" class="font-bold mb-2">Código</label>
+                    <input type="number" pInputText formControlName="codigo" required>
+                    <small *ngIf="productoForm.get('codigo').invalid && productoForm.get('codigo').touched" class="p-error">Ingrese un código válido</small>
+                    <small>Este es el código para escanear el producto</small>
+                </div>
+                <div class="col-12 md:col-8">
+                    <label htmlFor="descripcion" class="font-bold mb-2">Descripción</label>
+                    <textarea pInputTextarea formControlName="descripcion" rows="3" required></textarea>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="fechaVencimiento" class="font-bold mb-2">Fecha Vencimiento</label>
+                    <input type="date" pInputText formControlName="fecha_vencimiento" required>
+                    <small *ngIf="productoForm.get('fecha_vencimiento').invalid && (productoForm.get('fecha_vencimiento').dirty || productoForm.get('fecha_vencimiento').touched)" class="p-error">Seleccione una fecha</small>
+                </div>
+                <div class="col-12 md:col-4" *ngIf="!producto.editar">
+                    <label htmlFor="laboratorio" class="font-bold mb-2">Laboratorio</label>
+                    <input type="text" pInputText formControlName="laboratorio" required>
+                    <small *ngIf="productoForm.get('laboratorio').invalid && productoForm.get('laboratorio').touched" class="p-error">El laboratorio es obligatorio</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="lote" class="font-bold mb-2">N° Lote</label>
+                    <input type="text" pInputText formControlName="lote" required>
+                </div>
+                <div class="col-12 md:col-4" *ngIf="!producto.editar">
+                    <label htmlFor="stockActual" class="font-bold mb-2">Stock Actual</label>
+                    <input type="number" pInputText formControlName="stock_actual" required>
+                    <small *ngIf="productoForm.get('stock_actual').invalid && productoForm.get('stock_actual').touched" class="p-error">Ingrese un stock válido</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="precio" class="font-bold mb-2">Precio Venta</label>
+                    <input type="text" pInputText formControlName="precio" required>
+                    <small *ngIf="productoForm.get('precio').invalid && productoForm.get('precio').touched" class="p-error">Ingrese un precio válido</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="ubicacion" class="font-bold mb-2">Ubicación</label>
+                    <app-selector-ubicacion (itemSeleccionado)="productoForm.get('ubicacion_id').setValue($event.id)" required></app-selector-ubicacion>
+                    <small *ngIf="productoForm.get('ubicacion_id').invalid && (productoForm.get('ubicacion_id').dirty || productoForm.get('ubicacion_id').touched)" class="p-error">Seleccione una ubicación</small>
+                </div>
+
+
+            <div class="col-12" *ngIf="!producto.editar">
+                <h4>Asignar a Bodegas</h4>
+                <p-table [value]="bodegas" [columns]="['nombre', 'cantidad', 'acciones']">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre de Bodega</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-bodega let-i="rowIndex">
+                        <tr>
+                            <td>{{bodega.nombre}}</td>
+                            <td>
+                                <div formArrayName="detalles">
+                                    <div *ngIf="detalles.controls.length > 0" [formGroupName]="i">
+                                        <input type="number" pInputText formControlName="cantidad" required (input)="agregarABodega()" />
+<small *ngIf="detalles.at(i).get('cantidad').invalid && detalles.at(i).get('cantidad').touched" class="p-error">La cantidad es requerida</small>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            </div>
+        </form>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success mr-2" (click)="saveProduct()"></button>
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="hideDialog()"></button>
+    </ng-template>
+</p-dialog>
+
 

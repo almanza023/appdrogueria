@@ -49,10 +49,9 @@ export class VentaService {
     return this.http.post<any>(url, item, {headers});
   }
 
-  postEstado(id:any): Observable<any> {
+  postEstado(data:any): Observable<any> {
     const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
     let url=`${environment.baseURL}/ventas/cambiarEstado`;
-    let data ={id};
     return this.http.post<any>(url, data, {headers});
   }
 
@@ -68,6 +67,12 @@ export class VentaService {
     const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
     let url=`${environment.baseURL}/ventas-filter`;
     return this.http.post<any>(url, item, {headers});
+  }
+
+  getEmpresa(): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/ventas-empresa`;
+    return this.http.get<any>(url, {headers});
   }
 
 

@@ -64,6 +64,35 @@ export class ProductosService {
     return this.http.post<any>(url, item, {headers});
   }
 
+  postLaboratorio(item:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/productos-laboratorio`;
+    return this.http.post<any>(url, item, {headers});
+  }
+
+  getLaboratorio(): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/productos-laboratorio`;
+    return this.http.get<any>(url, {headers});
+  }
+
+  postProductoBodega(item:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/productos-bodegas`;
+    return this.http.post<any>(url, item, {headers});
+  }
+
+
+  postProductoAVencer(item:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/productos-proximos-avencer `;
+    return this.http.post<any>(url, item, {headers});
+  }
+
+
+
+
+
 
 
 

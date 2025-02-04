@@ -22,7 +22,7 @@ export class VentasComponent {
     deleteProductsDialog: boolean = false;
 
     data: any[] = [];
-    pedido: any = {};
+    venta: any = {};
     selectedProducts: any[] = [];
     submitted: boolean = false;
     cols: any[] = [];
@@ -41,6 +41,15 @@ export class VentasComponent {
     fechaFinal:any;
     filtroUser:string;
     rol:string;
+    observaciones:string;
+    filtroEstado:number=-1;
+    estados:any=[
+        {id:-1 , nombre:"TODOS"},
+        {id:0 , nombre:"PENDIENTE"},
+        {id:1 , nombre:"FACTURADA"},
+        {id:2 , nombre:"ANULADA"},
+    ]
+
 
 
     constructor(
@@ -56,6 +65,16 @@ export class VentasComponent {
         this.buscar();
         this.cols = [ ];
         this.statuses = [];
+
+        this.fechaInicial = this.formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)); // fecha inicial del mes actual
+        this.fechaFinal = this.formatDate(new Date()); // fecha actual
+    }
+
+    formatDate(date: Date): string {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
     }
 
     buscar(){
@@ -71,7 +90,10 @@ export class VentasComponent {
         }
         let data:any = {
             fecha_inicio: this.fechaInicial,
-            fecha_fin: this.fechaFinal
+            fecha_fin: this.fechaFinal,
+            estado: this.filtroEstado,
+            rol:localStorage.getItem('rol'),
+            user_id:localStorage.getItem('user_id'),
         };
 
         if(rol != "1") {
@@ -114,16 +136,35 @@ export class VentasComponent {
     }
 
 
-    bloqueoCliente(cliente: any) {
+    anularVenta(cliente: any) {
         this.deleteProductDialog = true;
-        this.pedido = { ...cliente };
-        this.pedido.cambio_estado = true;
+        this.venta = { ...cliente };
+        this.venta.cambio_estado = true;
+        this.venta.user_id=localStorage.getItem('user_id');
+        this.venta.observaciones='';
     }
 
     confirmDelete() {
+
+        if(this.venta.observaciones==undefined || this.venta.observaciones==''){
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Advertencia',
+                detail: "Debe ingresar el motivo de anulación",
+                life: 3000,
+            });
+            return;
+        }
+
+        this.venta = {
+            id: this.venta.id,
+            user_id: this.venta.user_id,
+            observaciones: this.venta.observaciones
+        };
+
         this.deleteProductDialog = false;
         this.service
-            .postEstado(this.pedido.id)
+            .postEstado(this.venta)
             .pipe(finalize(() => this.buscar()))
             .subscribe(
                 (response) => {
@@ -152,7 +193,7 @@ export class VentasComponent {
                     });
                 }
             );
-        this.pedido = {};
+        this.venta = {};
     }
 
     hideDialog() {
@@ -160,8 +201,9 @@ export class VentasComponent {
         this.submitted = false;
     }
 
-    getVenta(pedido_id:any) {
-        this.service.getById(pedido_id)
+    getVenta(venta_id:any, observacion:string) {
+        this.observaciones = observacion;
+        this.service.getById(venta_id)
         .subscribe(
             (response) => {
                 //console.log(response.data);
@@ -200,6 +242,14 @@ export class VentasComponent {
             'contains'
         );
     }
+
+    calcularTotalGeneral() {
+        return this.data.reduce(
+            (total, venta) => Number(total) + Number(venta.total),
+            0
+        );
+    }
+
 
 
 

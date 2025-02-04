@@ -65,9 +65,9 @@
                             Nombre
                             <p-sortIcon field="nombre"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="numero">
-                            Número Documento
-                            <p-sortIcon field="numero"></p-sortIcon>
+                        <th pSortableColumn="nombre_visitador">
+                            Nombre Visitador
+                            <p-sortIcon field="nombre_visitador"></p-sortIcon>
                         </th>
                         <th pSortableColumn="posicion">
                             Teléfono
@@ -91,8 +91,8 @@
                             {{ item.nombre }}
                         </td>
                         <td style="width: 32%; min-width: 10rem">
-                            <span class="p-column-title">Número Documento</span>
-                            {{ item.numerodocumento }}
+                            <span class="p-column-title">Nombre Visitador</span>
+                            {{ item.nombre_visitador }}
                         </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Teléfono</span>
@@ -155,13 +155,13 @@
                 </div>
                 <div class="field grid">
                     <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-                        <b>Número Documento</b>
+                        <b>Nombre Visitador</b>
                     </label>
                     <div class="col-12 md:col-12">
                         <input
-                            type="number"
+                            type="text"
                             pInputText
-                            [(ngModel)]="proveedor.numerodocumento"
+                            [(ngModel)]="proveedor.nombre_visitador"
                         />
                     </div>
                 </div>

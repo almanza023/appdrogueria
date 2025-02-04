@@ -46,8 +46,7 @@ export class UsuariosComponent {
         this.statuses = [];
         this.roles = [
             { id: 1, descripcion: 'ADMINISTRADOR' },
-            { id: 2, descripcion: 'MESERO' },
-            { id: 3, descripcion: 'CAJA' },
+            { id: 2, descripcion: 'VENDEDOR' },
         ];
     }
 

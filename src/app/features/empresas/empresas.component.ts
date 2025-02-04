@@ -1,26 +1,27 @@
 import { Component, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs';
-
 import { Table } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 
-import { ClientesService } from 'src/app/core/services/clientes.service';
-import { Proveedor } from 'src/app/core/interface/Proveedor';
-import { ProveedorService } from 'src/app/core/services/proveedor.service';
+
+import { EmpresaService } from 'src/app/core/services/empresa.service';
+import { Empresa } from 'src/app/core/interface/Empresa';
 
 
 @Component({
-    selector: 'app-proveedores',
-    templateUrl: './proveedores.component.html',
+    selector: 'app-empresas',
+    templateUrl: './empresas.component.html',
     providers: [MessageService],
 })
-export class ProveedoresComponent {
-    clienteDialog: boolean = false;
+export class EmpresasComponent {
+    empresaDialog: boolean = false;
     deleteProductDialog: boolean = false;
     deleteProductsDialog: boolean = false;
 
     data: any[] = [];
-    proveedor: any = {};
+
+    descripcion: string;
+    empresa: any = {};
     selectedProducts: any[] = [];
     submitted: boolean = false;
     cols: any[] = [];
@@ -28,23 +29,17 @@ export class ProveedoresComponent {
     seleccionado: any = {};
     item: any = {};
     rowsPerPageOptions = [5, 10, 20];
-    posiciones:any[]=[];
-    posicion:any={};
-    jugadorModel:Proveedor={};
-    nombreModulo: string = 'Módulo de Distribuidores';
-
-
+    nombreModulo: string = 'Módulo de Empresas';
+    empresaModel: Empresa = {};
 
     constructor(
-        private service: ProveedorService,
+        private service: EmpresaService,
         private messageService: MessageService
     ) {}
 
-
-
     ngOnInit() {
         this.getDataAll();
-        this.cols = [ ];
+        this.cols = [];
         this.statuses = [];
     }
 
@@ -65,38 +60,35 @@ export class ProveedoresComponent {
         );
     }
 
-
     openNew() {
-        this.proveedor = {};
-        this.proveedor.editar = false;
+        this.empresa = {};
+        this.empresa.editar = false;
         this.submitted = false;
-        this.clienteDialog = true;
+        this.empresaDialog = true;
         this.seleccionado = {};
-        this.posicion={};
     }
 
     deleteSelectedProducts() {
         this.deleteProductsDialog = true;
     }
 
-    editProduct(item: any) {
-        this.proveedor = { ...item };
-        this.clienteDialog = true;
-        this.proveedor.editar = true;
+    edit(item: any) {
+        this.empresa = { ...item };
+        this.empresaDialog = true;
+        this.empresa.editar = true;
     }
 
-    bloqueoCliente(cliente: any) {
+    bloquear(empresa: any) {
         this.deleteProductDialog = true;
-        this.proveedor = { ...cliente };
-        this.proveedor.cambio_estado = true;
-        this.jugadorModel=this.mapearDatos(this.proveedor, true);
-
+        this.empresa = { ...empresa };
+        this.empresa.cambio_estado = true;
+        this.empresaModel = this.mapearDatos(this.empresa, true);
     }
 
     confirmDelete() {
         this.deleteProductDialog = false;
         this.service
-            .postEstado(this.proveedor.id)
+            .postEstado(this.empresa.id)
             .pipe(finalize(() => this.getDataAll()))
             .subscribe(
                 (response) => {
@@ -125,19 +117,16 @@ export class ProveedoresComponent {
                     });
                 }
             );
-        this.proveedor = {};
-        this.jugadorModel = {};
+        this.empresa = {};
     }
-
     hideDialog() {
-        this.clienteDialog = false;
+        this.empresaDialog = false;
         this.submitted = false;
     }
 
-    saveProduct() {
+    save() {
         this.submitted = true;
-        this.proveedor.user = localStorage.getItem('user_id');
-        if (this.proveedor.nombre == undefined || this.proveedor.nombre == '') {
+        if (this.empresa.nombre == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -146,31 +135,46 @@ export class ProveedoresComponent {
             });
             return;
         }
-        if (this.proveedor.nombre_visitador == undefined || this.proveedor.nombre_visitador == '') {
+        if (this.empresa.direccion == undefined || this.empresa.direccion == '') {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
-                detail: 'Debe ingresar un Nombre de Visitador',
+                detail: 'Debe ingresar una Dirección',
                 life: 3000,
             });
             return;
         }
-
-        this.jugadorModel=this.mapearDatos(this.proveedor, false);
-
-        if (this.proveedor.id == undefined) {
-            this.crear(this.jugadorModel);
+        if (this.empresa.telefono == undefined || this.empresa.telefono == '') {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe ingresar un Teléfono',
+                life: 3000,
+            });
+            return;
+        }
+        if (this.empresa.contacto == undefined || this.empresa.contacto == '') {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe ingresar un Contacto',
+                life: 3000,
+            });
+            return;
+        }
+        this.empresaModel = this.mapearDatos(this.empresa, false);
+        if (this.empresa.id == undefined) {
+            //this.crear(this.empresaModel);
         } else {
-            this.actualizar(this.proveedor.id, this.jugadorModel);
+            this.actualizar(this.empresa.id, this.empresaModel);
         }
         //this.clientes = [...this.clientes];
-        this.clienteDialog = false;
-        this.proveedor = {};
+        this.empresaDialog = false;
+        this.empresa = {};
         this.seleccionado = {};
-        this.posicion={};
     }
 
-    crear(item: Proveedor) {
+    crear(item: Empresa) {
         this.service
             .postData(item)
             .pipe(finalize(() => this.getDataAll()))
@@ -203,7 +207,7 @@ export class ProveedoresComponent {
             );
     }
 
-    actualizar(id:number, item: Proveedor) {
+    actualizar(id: number, item: Empresa) {
         this.service
             .putData(id, item)
             .pipe(finalize(() => this.getDataAll()))
@@ -243,15 +247,16 @@ export class ProveedoresComponent {
         );
     }
 
-
-    mapearDatos(jugaodr:any, estado:boolean){
-        let model:Proveedor={};
-        model.nombre=this.proveedor.nombre.toUpperCase();
-        model.nombre_visitador=this.proveedor.nombre_visitador;
-        model.telefono=this.proveedor.telefono;
-        if(estado){
-            model.estado=!this.proveedor.estado;
+    mapearDatos(item: any, estado: boolean) {
+        let model: Empresa = {};
+        model.nombre = item.nombre.toUpperCase();
+        model.nit = item.nit;
+        model.telefono = item.telefono;
+        model.direccion = item.direccion;
+        model.contacto = item.contacto;
+        if (estado) {
+            model.estado = !item.estado;
         }
-        return model
+        return model;
     }
 }

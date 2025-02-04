@@ -91,6 +91,10 @@
                             Fecha
                             <p-sortIcon field="fecha"></p-sortIcon>
                         </th>
+                        <th pSortableColumn="bodega.id">
+                            Bodega
+                            <p-sortIcon field="bodega.id"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="proveedor.id">
                             Proveedor
                             <p-sortIcon field="proveedor.id"></p-sortIcon>
@@ -115,6 +119,10 @@
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Fecha</span>
                             {{ item.fecha }}
+                        </td>
+                        <td style="width: 32%; min-width: 10rem">
+                            <span class="p-column-title">Bodega</span>
+                            {{ item.bodega?.nombre }}
                         </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Proveedor</span>

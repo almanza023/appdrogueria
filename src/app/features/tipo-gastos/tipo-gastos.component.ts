@@ -20,7 +20,7 @@ export class TipoGastosComponent {
     data: any[] = [];
 
     descripcion: string;
-    tipopartido: any = {};
+    tipogasto: any = {};
     selectedProducts: any[] = [];
     submitted: boolean = false;
     cols: any[] = [];
@@ -31,6 +31,11 @@ export class TipoGastosComponent {
     nombreModulo: string = 'Módulo de Tipo de Gastos';
     tipopartidoModel: TipoPago = {};
 
+    periodicidadOptions = [
+        { label: 'Diario', value: '1' },
+        { label: 'Quincenal', value: '2' },
+        { label: 'Mensual', value: '3' },
+    ]
     constructor(
         private tipoService: TipoGastosService,
         private messageService: MessageService
@@ -60,8 +65,8 @@ export class TipoGastosComponent {
     }
 
     openNew() {
-        this.tipopartido = {};
-        this.tipopartido.editar = false;
+        this.tipogasto = {};
+        this.tipogasto.editar = false;
         this.submitted = false;
         this.clienteDialog = true;
         this.seleccionado = {};
@@ -72,22 +77,27 @@ export class TipoGastosComponent {
     }
 
     edit(item: any) {
-        this.tipopartido = { ...item };
+        this.tipogasto = { ...item };
         this.clienteDialog = true;
-        this.tipopartido.editar = true;
+        this.tipogasto.editar = true;
+        const selectedPeriodicidad = this.periodicidadOptions.find(option => option.label === item.periodicidad);
+        if (selectedPeriodicidad) {
+            this.tipogasto.periodicidad = selectedPeriodicidad.value;
+        }
+
     }
 
     bloquear(cliente: any) {
         this.deleteProductDialog = true;
-        this.tipopartido = { ...cliente };
-        this.tipopartido.cambio_estado = true;
-        this.tipopartidoModel = this.mapearDatos(this.tipopartido, true);
+        this.tipogasto = { ...cliente };
+        this.tipogasto.cambio_estado = true;
+        this.tipopartidoModel = this.mapearDatos(this.tipogasto, true);
     }
 
     confirmDelete() {
         this.deleteProductDialog = false;
         this.tipoService
-            .postEstado(this.tipopartido.id)
+            .postEstado(this.tipogasto.id)
             .pipe(finalize(() => this.getDataAll()))
             .subscribe(
                 (response) => {
@@ -116,7 +126,7 @@ export class TipoGastosComponent {
                     });
                 }
             );
-        this.tipopartido = {};
+        this.tipogasto = {};
     }
     hideDialog() {
         this.clienteDialog = false;
@@ -125,7 +135,7 @@ export class TipoGastosComponent {
 
     save() {
         this.submitted = true;
-        if (this.tipopartido.nombre == undefined) {
+        if (this.tipogasto.nombre == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -134,16 +144,26 @@ export class TipoGastosComponent {
             });
             return;
         }
-        this.tipopartidoModel = this.mapearDatos(this.tipopartido, false);
-        if (this.tipopartido.id == undefined) {
+        if (this.tipogasto.periodicidad === undefined) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe seleccionar una Periodicidad',
+                life: 3000,
+            });
+            return;
+        }
+
+        this.tipopartidoModel = this.mapearDatos(this.tipogasto, false);
+        if (this.tipogasto.id == undefined) {
             this.crear(this.tipopartidoModel);
         } else {
-            this.actualizar(this.tipopartido.id, this.tipopartidoModel);
+            this.actualizar(this.tipogasto.id, this.tipopartidoModel);
         }
         //this.clientes = [...this.clientes];
         this.clienteDialog = false;
-        this.tipopartido = {};
-        this.seleccionado = {};
+        this.tipogasto = {};
+        this.tipogasto = {};
     }
 
     crear(item: TipoPago) {
@@ -223,6 +243,7 @@ export class TipoGastosComponent {
         let model: TipoPago = {};
         model.nombre = item.nombre.toUpperCase();
         model.descripcion = item.descripcion;
+        model.periodicidad = item.periodicidad;
         if (estado) {
             model.estado = !item.estado;
         }

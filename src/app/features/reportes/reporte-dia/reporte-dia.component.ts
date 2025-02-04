@@ -19,6 +19,10 @@ export class ReporteDiaComponent {
     filter:any={};
     historialDialog:boolean=false;
     historial:any=[];
+    dataReport:any;
+    bloquear:boolean=false;
+    loading:boolean=false;
+
     ngOnInit(): void {
         this.today = this.formatDate(new Date());
         this.todayF = this.formatDate(new Date(Date.now() + 86400000)); // Sumar 1 día a la fecha actual
@@ -68,41 +72,80 @@ export class ReporteDiaComponent {
 
     getData(item:any) {
         this.data=[];
-        this.service.postDia(item).subscribe(
-            (response) => {
-                //console.log(response.data);
-                this.data = response.data;
-                if(this.data.length==0){
+        this.loading=true;
+        setTimeout(() => {
+            this.service.postDia(item).subscribe(
+                (response) => {
+                    //console.log(response.data);
+                    this.data = response.data;
+                    if(this.data.length==0){
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Advertencia',
+                            detail:"No Existen Datos",
+                            life: 3000,
+                        });
+                        this.loading=false;
+                        return;
+                    }else{
+                        this.dataReport = {
+                            caja_id:this.data.caja_id,
+                            fecha_inicio:this.data.fecha_inicio,
+                            base_inicial:this.data.base_inicial,
+                            totalventas:this.data.totalventas,
+                            totalgastos:this.data.totalgastos,
+                            totalneto:this.data.totalneto,
+                            ventas: this.data.ventas.map((v:any) => {
+                                return {
+                                    fecha:v.created_at,
+                                    total:v.total,
+                                }
+                            }),
+                            gastos: this.data.gastos.map((g:any) => {
+                                return {
+                                    tipo:g.tipogasto?.nombre,
+                                    fecha:g.created_at,
+                                    total:g.valortotal,
+                                }
+                            }),
+                            pagos:this.data.pagos,
+                            productos:this.data.ventas.reduce((acc:any, curr:any) => {
+                                curr.detalles.forEach((d:any) => {
+                                    const exist = acc.find((item:any) => item.producto_id === d.producto_id);
+                                    if(exist){
+                                        exist.cantidad += d.cantidad;
+                                    }else{
+                                        acc.push({
+                                            producto_id:d.producto_id,
+                                            nombre:d.producto?.nombre,
+                                            cantidad:d.cantidad,
+                                            stock_actual:d.producto?.stock_actual,
+                                        });
+                                    }
+                                });
+                                return acc;
+                            },[]),
+
+                        };
+                        this.loading=false;
+                    }
+
+                },
+                (error) => {
                     this.messageService.add({
                         severity: 'warn',
                         summary: 'Advertencia',
-                        detail:"No Existen Datos",
+                        detail:"Error al obtener datos",
                         life: 3000,
                     });
                 }
-            },
-            (error) => {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Advertencia',
-                    detail:"Error al obtener datos",
-                    life: 3000,
-                });
-            }
-        );
+            );
+        }, 2000);
     }
 
-    cerrarCaja(item:any){
-        if(!this.today){
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail:"Debe seleccionar una Fecha de Cierre de Caja",
-                life: 3000,
-            });
-            return;
-        }
 
+    cerrarCaja(item:any){
+        this.loading=true;
         let user_id=localStorage.getItem('user_id');
         let data={
             user_id,
@@ -114,8 +157,9 @@ export class ReporteDiaComponent {
             utilidad:item.totalneto,
         }
 
+        setTimeout(() => {
         this.service.putData(data.caja_id, data)
-        .pipe(finalize(() => this.getData(this.filter)))
+        //.pipe(finalize(() => this.getData(this.filter)))
         .subscribe(
             (response) => {
                 let severity = '';
@@ -123,6 +167,7 @@ export class ReporteDiaComponent {
                 if (response.isSuccess == true) {
                     severity = 'success';
                     summary = 'Exitoso';
+                    this.bloquear=true;
                 } else {
                     severity = 'warn';
                     summary = 'Advertencia';
@@ -143,6 +188,8 @@ export class ReporteDiaComponent {
                 });
             }
         );
+        this.loading=false;
+        }, 2000);
     }
 
     confirm1(item:any) {

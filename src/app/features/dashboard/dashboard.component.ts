@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Subscription, finalize } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
@@ -11,7 +11,7 @@ import { MesasService } from 'src/app/core/services/mesas.service';
     templateUrl: './dashboard.component.html',
     providers: [MessageService],
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
 
     items!: MenuItem[];
     detalle:any={};
@@ -21,12 +21,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     rol = localStorage.getItem('rol');
     totalVentasDia: number = 0;
     productosBajosStock: number = 0;
-    pedidos:any=[];
+    productosProximosAVencer:any=[];
+    optionsDias: any[] = [
+        { label: '30 días', value: 30 },
+        { label: '60 días', value: 60 },
+        { label: '90 días', value: 90 },
+        { label: '120 días', value: 120 },
+        { label: '180 días', value: 180 },
+    ];
+    diasFiltrar: number = 180;
+
+
     constructor(
         private service: AperturaCajaService,
          public layoutService: LayoutService,
          public messageService: MessageService,
-         private mesaService: MesasService,
+         private productoService: ProductosService,
          private router: Router,
          ) {
 
@@ -34,17 +44,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.getDataAll();
+        this.buscarProductosProximosAVencer();
 
     }
 
 
-    nuevoPedido(){
-        this.router.navigate(['/pedidos/registro/0']);
+    nuevaVenta(){
+        this.router.navigate(['/ventas/registro/0']);
     }
-    verPedidos(){
-        this.router.navigate(['/pedidos']);
-    }
-
     verReporteDia() {
         // Implementar navegación al reporte del día
         this.router.navigate(['/reportes/dia']);
@@ -78,7 +85,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         };
 
         this.service.getEstadisticas(data)
-        .pipe(finalize(() => this.getPedidosAbiertos()))
         .subscribe(
             (response) => {
                 this.detalle = response.data;
@@ -91,37 +97,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Advertencia',
-                    detail: "Error al Obtener datod",
+                    detail: "Error al Obtener datos",
                     life: 3000,
                 });
             }
         );
     }
 
-    getPedidosAbiertos() {
-        this.mesaService.getMesasPedidosActivos().subscribe(
+    buscarProductosProximosAVencer(){
+        let data={
+            dias:this.diasFiltrar
+        };
+        this.productoService.postProductoAVencer(data)
+        .subscribe(
             (response) => {
-                //console.log(response.data);
-                this.pedidos = response.data;
+                this.productosProximosAVencer = response.data;
             },
             (error) => {
                 this.messageService.add({
-                    severity: 'warn',
+                    severity: 'error',
                     summary: 'Advertencia',
-                    detail: error.error.data,
+                    detail: "Error al Obtener datos",
                     life: 3000,
                 });
             }
         );
     }
 
-    ngOnDestroy(): void {
 
-    }
-
-    getPedido(id:any){
-        this.router.navigate(['/pedidos/registro/'+id]);
-    }
 
 
 }

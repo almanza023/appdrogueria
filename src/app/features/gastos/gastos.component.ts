@@ -28,7 +28,6 @@ export class GastosComponent {
     rowsPerPageOptions = [5, 10, 20];
     posiciones: any[] = [];
     posicion: any = {};
-    selectedFile: File | null = null;
 
     nombreModulo: string = 'Módulo de Gastos';
     @ViewChild(SelectorTiPoGastoComponent)
@@ -37,6 +36,10 @@ export class GastosComponent {
     startDate:any="";
     endDate:any="";
     filter:any={};
+    tipoCajaOptions:any=[
+        {label:'DIARIO',value:'1'},
+        {label:'CAJA MENOR',value:'2'},
+    ];
 
     constructor(
         private service: GastosService,
@@ -48,8 +51,9 @@ export class GastosComponent {
         this.cols = [];
         this.statuses = [];
         this.today = this.formatDate(new Date());
-        this.startDate = this.formatDate(new Date());
-        this.endDate = this.formatDate(new Date());
+        this.startDate = this.formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+        var lastDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
+        this.endDate = this.formatDate(lastDayOfMonth);
         this.filter={
             fechaInicio:this.startDate,
             fechaFinal:this.endDate,
@@ -70,6 +74,14 @@ export class GastosComponent {
             (response) => {
                 //console.log(response.data);
                 this.data = response.data;
+                if(this.data.length==0){
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Advertencia',
+                        detail: 'No hay datos para mostrar',
+                        life: 3000,
+                    });
+                }
             },
             (error) => {
                 this.messageService.add({
@@ -103,7 +115,11 @@ export class GastosComponent {
         this.gasto = { ...item };
         this.clienteDialog = true;
         this.gasto.editar = true;
-        this.tipogastoComponent.filtrar(this.gasto.tipopago_id);
+        this.tipogastoComponent.filtrar(this.gasto.tipogasto_id);
+        let obj = this.tipoCajaOptions.find((o) => o.value == this.gasto.tipocaja);
+        this.gasto.tipocaja=obj?.value;
+        console.log(this.gasto);
+
     }
 
     bloqueoCliente(cliente: any) {
@@ -153,7 +169,7 @@ export class GastosComponent {
         this.submitted = false;
     }
 
-    saveProduct() {
+    save() {
         this.submitted = true;
         this.gasto.user_id = localStorage.getItem('user_id');
         this.gasto.fecha=this.today;
@@ -204,6 +220,17 @@ export class GastosComponent {
             });
             return;
         }
+
+        if (this.gasto.tipocaja == undefined) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe Seleccionar un Tipo De Caja',
+                life: 3000,
+            });
+            return;
+        }
+
         //this.jugadorModel=this.mapearDatos(this.proveedor, false);
 
         if (this.gasto.id == undefined) {

@@ -73,6 +73,15 @@ export class AperturaCajaService {
     return this.http.post<any>(url, item, {headers});
   }
 
+  getHistoricosCajaMenor(item:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/apertura-caja-menor`;
+    return this.http.post<any>(url, item, {headers});
+  }
+
+
+
+
 
 
 

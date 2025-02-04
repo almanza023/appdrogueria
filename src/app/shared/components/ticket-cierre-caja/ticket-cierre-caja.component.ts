@@ -1,16 +1,19 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-ticket-pos',
-  templateUrl: './ticket-pos.component.html',
+  selector: 'app-ticket-cierre-caja',
+  templateUrl: './ticket-cierre-caja.component.html'
 })
-export class TicketPosComponent implements OnInit {
+export class TicketCierreCajaComponent implements OnInit {
 
+ 
+    @Input() data: any = 0;
+    fechaActual = new Date();
     tienda: string = '';
     nit: string = '';
     direccion: string = '';
     telefono: string = '';
-    @Input() data: any = 0;
+    
   constructor() { }
 
   ngOnInit() {

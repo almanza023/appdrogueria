@@ -14,6 +14,7 @@
                         <label for="startDate">Fecha Inicio</label>
                         <p-calendar
                             id="startDate"
+                            appendTo="body"
                             [(ngModel)]="startDate"
                             [showIcon]="true"
                             [showTime]="false"
@@ -26,6 +27,7 @@
                     <div class="field">
                         <label for="endDate">Fecha Fin</label>
                         <p-calendar
+                            appendTo="body"
                             id="endDate"
                             [(ngModel)]="endDate"
                             [showIcon]="true"
@@ -92,6 +94,10 @@
                             Tipo Gasto
                             <p-sortIcon field="tipogasto.nombre"></p-sortIcon>
                         </th>
+                        <th pSortableColumn="tipocaja">
+                            Tipo Caja
+                            <p-sortIcon field="tipocaja"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="descripcion">
                             Descripción
                             <p-sortIcon field="descripcion"></p-sortIcon>
@@ -114,8 +120,12 @@
                 <ng-template pTemplate="body" let-item>
                     <tr>
                         <td style="width: 10%; min-width: 10rem">
-                            <span class="p-column-title">Categoria</span>
+                            <span class="p-column-title">Tipo Gasto</span>
                             {{ item.tipogasto?.nombre }}
+                        </td>
+                        <td style="width: 10%; min-width: 10rem">
+                            <span class="p-column-title">Tipo Caja</span>
+                            {{ item.tipocaja == "1" ? "DIARIO" : item.tipocaja == "2" ? "CAJA MENOR" : "" }}
                         </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Descripción</span>
@@ -184,12 +194,29 @@
                     </div>
                 </div>
 
+                <div class="field grid">
+                    <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
+                        <b>Tipo Caja</b>
+                    </label>
+                    <div class="col-12 md:col-12">
+                        <p-dropdown
+                            [options]="tipoCajaOptions"
+                            [(ngModel)]="gasto.tipocaja"
+                            optionLabel="label"
+                            optionValue="value"
+                            appendTo="body"
+                            placeholder="Seleccione el tipo de caja"
+                        ></p-dropdown>
+                    </div>
+                </div>
+
+
                 <div class="field grid" >
                     <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
                         <b>Fecha</b>
                     </label>
                     <div class="col-12 md:col-12">
-                        <p-calendar id="fecha" [(ngModel)]="today" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                        <p-calendar appendTo="body" id="fecha" [(ngModel)]="today" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
                     </div>
                 </div>
 
@@ -220,13 +247,16 @@
                         />
                     </div>
                 </div>
+
+
+
             </div>
         </div>
     </div>
 
     <ng-template pTemplate="footer">
         <button
-            (click)="saveProduct()"
+            (click)="save()"
             pButton
             pRipple
             label="Guardar"

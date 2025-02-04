@@ -1,10 +1,15 @@
 <p-toast></p-toast>
+<app-loading *ngIf="loading"></app-loading>
 <div class="p-fluid">
     <div class="card">
         <div class="field">
-            <label for="fecha">N° Factura</label>
-            <h3><b>{{venta_id}}</b></h3>
-       </div>
+            <label for="venta_id">N° Factura</label>
+            <input pInputText id="venta_id" [(ngModel)]="venta_id" (keyup.enter)="redireccionar(venta_id)" />
+<div class="field">
+    <p-button label="Buscar Venta" icon="pi pi-search" (click)="redireccionar(venta_id)" styleClass="p-button-info"></p-button>
+</div>
+
+        </div>
         <div class="field">
             <label for="fecha">Fecha</label>
             <p-calendar id="fecha" [(ngModel)]="today" [showIcon]="true" dateFormat="yy-mm-dd" [disabled]="venta_id !== ''"></p-calendar>
@@ -21,22 +26,24 @@
                 <tr>
                     <th>Producto</th>
                     <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Total</th>
+                    <th>Precio Venta</th>
+                    <th>Precio Descuento</th>
+                    <th>Subtotal</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-detalle>
                 <tr >
                     <td>{{ detalle.producto.nombre }}</td>
                     <td>{{ detalle.total_cantidad }}</td>
-                    <td>{{ detalle.producto.precio | currency }}</td>
+                    <td>{{ detalle.producto?.precio | currency }}</td>
+                    <td>{{ detalle.descuento ? (detalle.descuento | currency) : '-' }}</td>
                     <td>{{ detalle.total_subtotal | currency }}</td>
                 </tr>
             </ng-template>
         </p-table>
 
         <div class="field" *ngIf="detalles.length > 0">
-            <h3>Total Pedido: {{ calcularTotal() | currency }}</h3>
+            <h3>Total: {{ calcularTotal() | currency }}</h3>
             <h3>Cantidad Productos: {{ totalcantidad }}</h3>
             <h3>Saldo Pendiente: {{ saldo | currency }}</h3>
         </div>
@@ -80,14 +87,16 @@
             <textarea id="observaciones" [readOnly]="infoVenta.venta.estado==1" pInputTextarea [(ngModel)]="venta.observaciones" rows="3" class="w-full"></textarea>
         </div>
 
-        <div class="field" *ngIf="infoVenta.venta.estado==0">
+        <div class="field" *ngIf="infoVenta?.venta.estado==0">
             <p-button label="Finalizar Venta" icon="pi pi-check" styleClass="p-button-success" (click)="confirm1()"></p-button>
         </div>
 
         </div>
         <div class="field flex align-items-center justify-content-end">
-            <app-ticket-pos  [data]="infoVenta"></app-ticket-pos>
+            <p-button label="Nueva Venta" icon="pi pi-plus" styleClass="p-button-success ml-2" (click)="redireccionar(0)"></p-button>
+            <app-ticket-pos *ngIf="infoVenta?.venta?.estado==1"  [data]="infoVenta"></app-ticket-pos>
             <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger ml-2" (click)="redireccionarVentas()"></p-button>
+
         </div>
 
     </div>
@@ -100,7 +109,7 @@
     <div class="grid">
         <div class="col-12">
             <p-table #dt [value]="productos" [rows]="20"
-                [globalFilterFields]="['nombre', 'precio', 'descripcion']"
+                [globalFilterFields]="['nombre', 'precio', 'descripcion', 'codigo', 'laboratorio']"
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 30]" dataKey="id"
                 responsiveLayout="scroll">
@@ -125,20 +134,30 @@
                     <tr>
                         <th class="col-40">Nombre</th>
                         <th class="col-15">Cantidad</th>
+                        <th class="col-15">Precio Descuento</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-producto>
-                    <tr>
+                    <tr [ngStyle]="{'background-color': producto.etiqueta_vencimiento === 'Verde' ? '#abebc6' : producto.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : producto.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
                         <td class="col-40">{{ producto.nombre }}
                             <br>
                             <b>{{ producto.proveedor?.nombre  }}</b>
+                            <b>{{ producto.laboratorio  }}</b><br>
+                            <b>{{ producto.fecha_vencimiento | date:'dd/MM/yyyy'  }}</b>
                             <br>
                             <b>{{ producto.precio | currency }}</b>
                         </td>
                         <td class="col-15">
                             <input pInputText type="number" [(ngModel)]="producto.cantidad" [ngModelOptions]="{ standalone: true }" min="1" [value]="1" (change)="producto.cantidad = producto.cantidad || 1"  />
+
+                        </td>
+                        <td>
+                            <input pInputText type="number" [(ngModel)]="producto.descuento" [ngModelOptions]="{ standalone: true }" min="0" [value]="0" />
+                        </td>
+
+                        <td>
                             <br>
-                            <p-button label="" icon="pi pi-plus" (click)="agregarProducto(producto, producto.cantidad); producto.cantidad = 0;"></p-button>
+                            <p-button label="" icon="pi pi-plus" (click)="agregarProducto(producto, producto.cantidad, producto.stock_actual); producto.cantidad = 0;"></p-button>
                             <p-button label="" icon="pi pi-times" styleClass="p-button-danger" (click)="quitarProducto(producto, producto.cantidad); producto.cantidad = 0;"></p-button>
                         </td>
 

@@ -11,7 +11,7 @@ export class CajaGuard implements CanActivate {
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (localStorage.getItem('rol')=='1' || localStorage.getItem('rol')=='3') {
+    if (localStorage.getItem('rol')=='1' || localStorage.getItem('rol')=='2') {
       return true;
     } else {
       // Redirige al componente de login si el usuario no está autenticado

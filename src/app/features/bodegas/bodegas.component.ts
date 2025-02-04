@@ -1,26 +1,25 @@
+
 import { Component, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs';
-
 import { Table } from 'primeng/table';
 import { MessageService } from 'primeng/api';
+import { BodegaService } from 'src/app/core/services/bodega.service';
+import { Bodega } from 'src/app/core/interface/Bodega';
 
-import { ClientesService } from 'src/app/core/services/clientes.service';
-import { Proveedor } from 'src/app/core/interface/Proveedor';
-import { ProveedorService } from 'src/app/core/services/proveedor.service';
 
 
 @Component({
-    selector: 'app-proveedores',
-    templateUrl: './proveedores.component.html',
+    selector: 'app-bodegas',
+    templateUrl: './bodegas.component.html',
     providers: [MessageService],
 })
-export class ProveedoresComponent {
+export class BodegasComponent {
     clienteDialog: boolean = false;
     deleteProductDialog: boolean = false;
     deleteProductsDialog: boolean = false;
 
-    data: any[] = [];
-    proveedor: any = {};
+    data: any[] = [];    
+    bodega: any = {};
     selectedProducts: any[] = [];
     submitted: boolean = false;
     cols: any[] = [];
@@ -28,30 +27,23 @@ export class ProveedoresComponent {
     seleccionado: any = {};
     item: any = {};
     rowsPerPageOptions = [5, 10, 20];
-    posiciones:any[]=[];
-    posicion:any={};
-    jugadorModel:Proveedor={};
-    nombreModulo: string = 'Módulo de Distribuidores';
-
-
+    nombreModulo: string = 'Módulo de Bodegas';
+    modelo: Bodega = {};
 
     constructor(
-        private service: ProveedorService,
+        private service: BodegaService,
         private messageService: MessageService
     ) {}
 
-
-
     ngOnInit() {
         this.getDataAll();
-        this.cols = [ ];
+        this.cols = [];
         this.statuses = [];
     }
 
     getDataAll() {
         this.service.getAll().subscribe(
             (response) => {
-                //console.log(response.data);
                 this.data = response.data;
             },
             (error) => {
@@ -65,38 +57,35 @@ export class ProveedoresComponent {
         );
     }
 
-
     openNew() {
-        this.proveedor = {};
-        this.proveedor.editar = false;
+        this.bodega = {};
+        this.bodega.editar = false;
         this.submitted = false;
         this.clienteDialog = true;
         this.seleccionado = {};
-        this.posicion={};
     }
 
     deleteSelectedProducts() {
         this.deleteProductsDialog = true;
     }
 
-    editProduct(item: any) {
-        this.proveedor = { ...item };
+    edit(item: any) {
+        this.bodega = { ...item };
         this.clienteDialog = true;
-        this.proveedor.editar = true;
+        this.bodega.editar = true;
     }
 
-    bloqueoCliente(cliente: any) {
+    bloquear(cliente: any) {
         this.deleteProductDialog = true;
-        this.proveedor = { ...cliente };
-        this.proveedor.cambio_estado = true;
-        this.jugadorModel=this.mapearDatos(this.proveedor, true);
-
+        this.bodega = { ...cliente };
+        this.bodega.cambio_estado = true;
+        this.modelo = this.mapearDatos(this.bodega, true);
     }
 
     confirmDelete() {
         this.deleteProductDialog = false;
         this.service
-            .postEstado(this.proveedor.id)
+            .postEstado(this.bodega.id)
             .pipe(finalize(() => this.getDataAll()))
             .subscribe(
                 (response) => {
@@ -125,19 +114,16 @@ export class ProveedoresComponent {
                     });
                 }
             );
-        this.proveedor = {};
-        this.jugadorModel = {};
+        this.bodega = {};
     }
-
     hideDialog() {
         this.clienteDialog = false;
         this.submitted = false;
     }
 
-    saveProduct() {
+    save() {
         this.submitted = true;
-        this.proveedor.user = localStorage.getItem('user_id');
-        if (this.proveedor.nombre == undefined || this.proveedor.nombre == '') {
+        if (this.bodega.nombre == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -146,31 +132,19 @@ export class ProveedoresComponent {
             });
             return;
         }
-        if (this.proveedor.nombre_visitador == undefined || this.proveedor.nombre_visitador == '') {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'Debe ingresar un Nombre de Visitador',
-                life: 3000,
-            });
-            return;
-        }
-
-        this.jugadorModel=this.mapearDatos(this.proveedor, false);
-
-        if (this.proveedor.id == undefined) {
-            this.crear(this.jugadorModel);
+        this.modelo = this.mapearDatos(this.bodega, false);
+        if (this.bodega.id == undefined) {
+            this.crear(this.modelo);
         } else {
-            this.actualizar(this.proveedor.id, this.jugadorModel);
+            this.actualizar(this.bodega.id, this.modelo);
         }
         //this.clientes = [...this.clientes];
         this.clienteDialog = false;
-        this.proveedor = {};
+        this.bodega = {};
         this.seleccionado = {};
-        this.posicion={};
     }
 
-    crear(item: Proveedor) {
+    crear(item: Bodega) {
         this.service
             .postData(item)
             .pipe(finalize(() => this.getDataAll()))
@@ -203,7 +177,7 @@ export class ProveedoresComponent {
             );
     }
 
-    actualizar(id:number, item: Proveedor) {
+    actualizar(id: number, item: Bodega) {
         this.service
             .putData(id, item)
             .pipe(finalize(() => this.getDataAll()))
@@ -243,15 +217,14 @@ export class ProveedoresComponent {
         );
     }
 
-
-    mapearDatos(jugaodr:any, estado:boolean){
-        let model:Proveedor={};
-        model.nombre=this.proveedor.nombre.toUpperCase();
-        model.nombre_visitador=this.proveedor.nombre_visitador;
-        model.telefono=this.proveedor.telefono;
-        if(estado){
-            model.estado=!this.proveedor.estado;
+    mapearDatos(item: any, estado: boolean) {
+        let model: Bodega = {};
+        model.nombre = item.nombre.toUpperCase();
+        model.descripcion = item.descripcion;
+        model.telefono = item.telefono;
+        if (estado) {
+            model.estado = !item.estado;
         }
-        return model
+        return model;
     }
 }

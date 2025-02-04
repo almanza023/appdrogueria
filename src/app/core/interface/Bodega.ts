@@ -1,8 +1,7 @@
-export interface TipoPago {
-
+export interface Bodega {
         nombre?: string;
         descripcion?: string;
-        periodicidad?: string;
+        telefono?: string;
         estado?: boolean
 
 }

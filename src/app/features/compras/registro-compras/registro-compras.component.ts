@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { ComprasService } from 'src/app/core/services/compras.service';
 
 import { ProductosService } from 'src/app/core/services/productos.service';
+import { SelectorBodegaComponent } from 'src/app/shared/components/selector-bodega/selector-bodega.component';
 import { SelectorProveedorComponent } from 'src/app/shared/components/selector-proveedor/selector-proveedor.component';
 
 @Component({
@@ -31,6 +32,7 @@ export class RegistroComprasComponent implements OnInit {
 
     pendienteDialog:boolean=false;
     pendientes:any=[];
+    loading:boolean=false;
 
     constructor(
         private productoService: ProductosService,
@@ -42,6 +44,7 @@ export class RegistroComprasComponent implements OnInit {
     ) {}
 
     @ViewChild(SelectorProveedorComponent) proveedorComponent: SelectorProveedorComponent;
+    @ViewChild(SelectorBodegaComponent) bodegaComponent: SelectorBodegaComponent;
 
     ngOnInit() {
         this.id = this.route.snapshot.paramMap.get('id');
@@ -82,6 +85,16 @@ export class RegistroComprasComponent implements OnInit {
                 severity: 'warn',
                 summary: 'Advertencia',
                 detail: "Debe Seleccionar un Proveedor",
+                life: 3000,
+            });
+            return;
+        }
+
+        if(this.compra.bodega_id==undefined || this.compra.bodega_id==""){
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: "Debe Seleccionar una Bodega",
                 life: 3000,
             });
             return;
@@ -202,8 +215,9 @@ export class RegistroComprasComponent implements OnInit {
     }
 
     getCompra(compra_id:any) {
-        console.log(compra_id);
-        this.service.getById(compra_id)
+        this.loading=true;
+        setTimeout(() => {
+            this.service.getById(compra_id)
         .pipe(finalize(() => this.mapearDatos()))
         .subscribe(
             (response) => {
@@ -221,6 +235,8 @@ export class RegistroComprasComponent implements OnInit {
                 });
             }
         );
+        this.loading=false;
+        }, 2000);
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -305,43 +321,48 @@ export class RegistroComprasComponent implements OnInit {
         this.compra=this.infoPedido.compra;
         this.detalles=this.infoPedido.detalles;
         this.proveedorComponent.filtrar(this.infoPedido.compra.proveedor_id);
+        this.bodegaComponent.filtrar(this.infoPedido.compra.bodega_id);
     }
 
 finalizarPedido() {
+    this.loading=true;
     this.compra.total=this.totalcompra;
     this.compra.cantidad=this.totalcantidad;
     this.compra.user_id = localStorage.getItem('user_id');
 
-    this.service.putData(this.compra_id, this.compra).subscribe(
-        (response) => {
-            let severity = '';
-            let summary = '';
-            if (response.isSuccess) {
-                severity = 'success';
-                summary = 'Compra finalizada con éxito';
-                this.router.navigate(['/compras']); // Redirigir a la lista de pedidos
-            } else {
-                severity = 'warn';
-                summary = 'Advertencia';
-                this.pendientes=response.data;
-                this.pendienteDialog=true;
+    setTimeout(() => {
+        this.service.putData(this.compra_id, this.compra).subscribe(
+            (response) => {
+                let severity = '';
+                let summary = '';
+                if (response.isSuccess) {
+                    severity = 'success';
+                    summary = 'Compra finalizada con éxito';
+                    this.router.navigate(['/compras']); // Redirigir a la lista de pedidos
+                } else {
+                    severity = 'warn';
+                    summary = 'Advertencia';
+                    this.pendientes=response.data;
+                    this.pendienteDialog=true;
+                }
+                this.messageService.add({
+                    severity: severity,
+                    summary: summary,
+                    detail: response.message,
+                    life: 3000,
+                });
+            },
+            (error) => {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: error.error.data,
+                    life: 3000,
+                });
             }
-            this.messageService.add({
-                severity: severity,
-                summary: summary,
-                detail: response.message,
-                life: 3000,
-            });
-        },
-        (error) => {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: error.error.data,
-                life: 3000,
-            });
-        }
-    );
+        );
+        this.loading=false;
+    }, 2000);
 }
 
 cancelarFinalizarPedido() {

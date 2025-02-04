@@ -32,10 +32,10 @@ export class RegistroVentasComponent implements OnInit {
     totalcantidad: number = 0;
     id: string = '';
 
-    pagos:any=[];
-    tipopago:any={};
-
-
+    pagos: any = [];
+    tipopago: any = {};
+    loading:boolean=false;
+    empresa:any={};
 
     constructor(
         private productoService: ProductosService,
@@ -46,11 +46,11 @@ export class RegistroVentasComponent implements OnInit {
         private confirmationService: ConfirmationService
     ) {}
 
-
-
-
     get saldo(): number {
-        return this.calcularTotal() - this.pagos.reduce((acc, pago) => acc + pago.valor, 0);
+        return (
+            this.calcularTotal() -
+            this.pagos.reduce((acc, pago) => acc + pago.valor, 0)
+        );
     }
 
     ngOnInit() {
@@ -65,6 +65,33 @@ export class RegistroVentasComponent implements OnInit {
                 this.getVenta(this.venta_id);
             }, 1500);
         }
+        this.getEmpresa();
+    }
+
+    getEmpresa(){
+        if(localStorage.getItem('nombreEmpresa') && localStorage.getItem('nitEmpresa') && localStorage.getItem('direccionEmpresa') && localStorage.getItem('telefonoEmpresa')){
+            return;
+        }
+
+        this.ventaService.getEmpresa().subscribe(
+            (response) => {
+                //console.log(response.data);
+                this.empresa=response.data;
+                localStorage.setItem('nombreEmpresa', this.empresa.nombre);
+                localStorage.setItem('nitEmpresa', this.empresa.nit);
+                localStorage.setItem('direccionEmpresa', this.empresa.direccion);
+                localStorage.setItem('telefonoEmpresa', this.empresa.telefono);
+
+            },
+            (error) => {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: error.error.data,
+                    life: 3000,
+                });
+            }
+        );
     }
 
     formatDate(date: Date): string {
@@ -92,10 +119,21 @@ export class RegistroVentasComponent implements OnInit {
         }
     }
 
-    agregarProducto(producto: any, cantidad: number) {
+    agregarProducto(producto: any, cantidad: number, stock_general: number) {
+        if (cantidad > stock_general) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: `La cantidad no puede superar el stock general`,
+                life: 3000,
+            });
+            return;
+        }
+
         if (cantidad > 0) {
             const detalle = {
                 venta_id: this.venta_id,
+                descuento: producto.descuento,
                 producto_id: producto.id,
                 cantidad: cantidad, // Usar la cantidad recibida desde la vista
                 precio: producto.precio,
@@ -148,24 +186,28 @@ export class RegistroVentasComponent implements OnInit {
     }
 
     getVenta(venta_id: any) {
-        if(venta_id!=''){
-            this.ventaService
-            .getById(venta_id)
-            .pipe(finalize(() => this.mapearDatos()))
-            .subscribe(
-                (response) => {
-                    this.infoVenta = response.data;
-                    console.log(this.infoVenta);
-                },
-                (error) => {
-                    this.messageService.add({
-                        severity: 'warn',
-                        summary: 'Advertencia',
-                        detail: error.error.data,
-                        life: 3000,
-                    });
-                }
-            );
+        if (venta_id != '') {
+            this.loading=true;
+            setTimeout(() => {
+                this.ventaService
+                .getById(venta_id)
+                .pipe(finalize(() => this.mapearDatos()))
+                .subscribe(
+                    (response) => {
+                        this.infoVenta = response.data;
+                        console.log(this.infoVenta);
+                    },
+                    (error) => {
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Advertencia',
+                            detail: error.error.data,
+                            life: 3000,
+                        });
+                    }
+                );
+                this.loading=false;
+            }, 2000);
         }
     }
 
@@ -177,10 +219,12 @@ export class RegistroVentasComponent implements OnInit {
     }
 
     crear() {
+        this.loading=true;
         this.venta.user_id = localStorage.getItem('user_id');
         this.venta.fecha = this.today;
         this.venta.cliente_id = 1;
-        this.ventaService
+        setTimeout(() => {
+            this.ventaService
             .postData(this.venta)
             .pipe(finalize(() => this.getVenta(this.venta_id)))
             .subscribe(
@@ -213,6 +257,8 @@ export class RegistroVentasComponent implements OnInit {
                     });
                 }
             );
+            this.loading=false;
+        }, 2000);
     }
 
     crearDetalle(item: any) {
@@ -253,50 +299,73 @@ export class RegistroVentasComponent implements OnInit {
     }
 
     finalizarVenta() {
-
-        if(this.pagos.length === 0){
+        if (this.pagos.length === 0) {
             this.messageService.add({
-                severity: "warn",
-                summary: "Medios de Pagos",
-                detail: "Debe agregar al menos un medio de pago",
+                severity: 'warn',
+                summary: 'Medios de Pagos',
+                detail: 'Debe agregar al menos un medio de pago',
                 life: 3000,
             });
             return;
         }
-        this.venta.pagos=this.pagos;
+
+        if (
+            (this.tipopago.id === 1 &&
+                this.venta.dineroRecibido === undefined) ||
+            this.venta.dineroRecibido === 0
+        ) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Dinero Recibido',
+                detail: 'Debe ingresar el dinero recibido',
+                life: 3000,
+            });
+            return;
+        }
+
+        this.loading=true;
+        this.venta.pagos = this.pagos;
         this.venta.total = this.totalpedido;
         this.venta.cantidad = this.totalcantidad;
 
 
-        this.ventaService.putData(this.venta_id, this.venta)
-        .pipe(finalize(() => this.redireccionarVentas()))
-        .subscribe(
-            (response) => {
-                let severity = '';
-                let summary = '';
-                if (response.isSuccess) {
-                    severity = 'success';
-                    summary = 'Venta finalizada con éxito';
-                } else {
-                    severity = 'warn';
-                    summary = 'Advertencia';
+        setTimeout(() => {
+            this.ventaService
+            .putData(this.venta_id, this.venta)
+            .pipe(
+                finalize(() => {
+                    setTimeout(() => this.redireccionar(this.venta_id), 2000);
+                })
+            )
+            .subscribe(
+                (response) => {
+                    let severity = '';
+                    let summary = '';
+                    if (response.isSuccess) {
+                        severity = 'success';
+                        summary = 'Venta finalizada con éxito';
+                    } else {
+                        severity = 'warn';
+                        summary = 'Advertencia';
+                    }
+                    this.messageService.add({
+                        severity: severity,
+                        summary: summary,
+                        detail: response.message,
+                        life: 3000,
+                    });
+                },
+                (error) => {
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Advertencia',
+                        detail: error.error.data,
+                        life: 3000,
+                    });
                 }
-                this.messageService.add({
-                    severity: severity,
-                    summary: summary,
-                    detail: response.message,
-                    life: 3000,
-                });
-            },
-            (error) => {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Advertencia',
-                    detail: error.error.data,
-                    life: 3000,
-                });
-            }
-        );
+            );
+            this.loading=false;
+        }, 2000);
     }
 
     cancelarFinalizarPedido() {
@@ -342,7 +411,7 @@ export class RegistroVentasComponent implements OnInit {
         }
     }
     agregarPago() {
-        if (this.tipopago.id =="" || this.tipopago.id==undefined) {
+        if (this.tipopago.id == '' || this.tipopago.id == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -351,7 +420,7 @@ export class RegistroVentasComponent implements OnInit {
             });
             return;
         }
-        if (this.venta.valor =="" || this.venta.valor==undefined) {
+        if (this.venta.valor == '' || this.venta.valor == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -383,7 +452,7 @@ export class RegistroVentasComponent implements OnInit {
         this.pagos.push({
             tipopago_id: this.tipopago.id, // Asumiendo que tipopago_id se establece en el componente
             tipo: this.tipopago.nombre, // Asumiendo que tipopago_id se establece en el componente
-            valor: this.venta.valor
+            valor: this.venta.valor,
         });
 
         this.venta.valor = 0; // Reiniciar el valor después de agregar el pago
@@ -396,7 +465,7 @@ export class RegistroVentasComponent implements OnInit {
     }
 
     quitarPago(pago: any) {
-        this.pagos = this.pagos.filter(p => p !== pago);
+        this.pagos = this.pagos.filter((p) => p !== pago);
         this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
@@ -416,7 +485,10 @@ export class RegistroVentasComponent implements OnInit {
             return;
         }
 
-        const totalPagos = this.pagos.reduce((acc, pago) => acc + pago.valor, 0);
+        const totalPagos = this.pagos.reduce(
+            (acc, pago) => acc + pago.valor,
+            0
+        );
         const saldoPendiente = this.calcularTotal() - totalPagos;
 
         if (saldoPendiente <= 0) {
@@ -432,12 +504,15 @@ export class RegistroVentasComponent implements OnInit {
         this.pagos.push({
             tipopago_id: this.tipopago.id, // Usar el tipo de pago seleccionado
             tipo: this.tipopago.nombre, // Usar el tipo de pago seleccionado
-            valor: saldoPendiente
+            valor: saldoPendiente,
         });
     }
 
     calcularCambio(): number {
-        const totalPagos = this.pagos.reduce((acc, pago) => acc + pago.valor, 0);
+        const totalPagos = this.pagos.reduce(
+            (acc, pago) => acc + pago.valor,
+            0
+        );
         const saldoPendiente = this.calcularTotal() - totalPagos;
 
         if (saldoPendiente < 0) {
@@ -446,20 +521,19 @@ export class RegistroVentasComponent implements OnInit {
         return 0; // No hay cambio si el saldo pendiente es 0 o positivo
     }
 
-
     // Implementar la lógica de cambio
     // Si el saldo pendiente es 0 o positivo, no hay cambio
     // Si el saldo pendiente es negativo, hay cambio y se devuelve el valor absoluto del saldo pendiente
     get cambio(): number {
-        const saldoPendiente = this.venta.dineroRecibido - this.calcularTotal() ;
+        const saldoPendiente = this.venta.dineroRecibido - this.calcularTotal();
         if (saldoPendiente > 0) {
-            this.venta.cambio=Math.abs(saldoPendiente);
+            this.venta.cambio = Math.abs(saldoPendiente);
             return this.venta.cambio; // Retorna el cambio a devolver
         }
         return 0; // No hay cambio si el saldo pendiente es 0 o positivo
     }
 
-    redireccionarVentas(){
+    redireccionarVentas() {
         this.router
             .navigateByUrl('/', { skipLocationChange: true })
             .then(() => {
@@ -467,17 +541,26 @@ export class RegistroVentasComponent implements OnInit {
             });
     }
 
-    print() {
-       const printContent = document.getElementById('factura');
-  const windowPrint = window.open('', '', 'width=600,height=400');
-  if (windowPrint) {
-    windowPrint.document.write(printContent?.innerHTML || '');
-    windowPrint.document.close();
-    windowPrint.focus();
-    windowPrint.print();
-    windowPrint.close()
+    redireccionar(venta: any) {
+        if(venta==''){
+return;
+        }
+        this.router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => {
+                this.router.navigate(['ventas/registro/' + venta]);
+            });
     }
-}
 
-
+    print() {
+        const printContent = document.getElementById('factura');
+        const windowPrint = window.open('', '', 'width=600,height=400');
+        if (windowPrint) {
+            windowPrint.document.write(printContent?.innerHTML || '');
+            windowPrint.document.close();
+            windowPrint.focus();
+            windowPrint.print();
+            windowPrint.close();
+        }
+    }
 }

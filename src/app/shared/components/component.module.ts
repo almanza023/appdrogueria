@@ -24,7 +24,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { ToolbarModule  } from 'primeng/toolbar';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
-
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { LoadingComponent } from './loading/loading.component';
 import { SelectorFiltroComponent } from './selector-filtro/selector-filtro.component';
 import { SelectorEstadoComponent } from './selector-estado/selector-estado.component';
@@ -38,8 +38,8 @@ import { SelectorProveedorComponent } from './selector-proveedor/selector-provee
 import { SelectorUserComponent } from './selector-user/selector-user.component';
 import { SelectorUbicacionComponent } from './selector-ubicacion/selector-ubicacion.component';
 import { TicketPosComponent } from 'src/app/shared/components/ticket-pos/ticket-pos.component';
-
-
+import { SelectorBodegaComponent } from './selector-bodega/selector-bodega.component';
+import { TicketCierreCajaComponent } from './ticket-cierre-caja/ticket-cierre-caja.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +53,9 @@ import { TicketPosComponent } from 'src/app/shared/components/ticket-pos/ticket-
     SelectorTiPoPagoComponent,
     SelectorTiPoGastoComponent,
     SelectorUserComponent,
-    TicketPosComponent
+    SelectorBodegaComponent,
+    TicketPosComponent, 
+    TicketCierreCajaComponent
   ],
   imports: [
     CommonModule,
@@ -61,20 +63,21 @@ import { TicketPosComponent } from 'src/app/shared/components/ticket-pos/ticket-
     FormsModule, ButtonModule,
     CalendarModule, TableModule,KeyFilterModule,
     ToastModule, RatingModule, MultiSelectModule, SelectButtonModule,
-    InputMaskModule, InputNumberModule, InputTextModule, AccordionModule, FileUploadModule,
+    InputMaskModule, InputNumberModule, InputTextModule, AccordionModule, FileUploadModule,AutoCompleteModule,
     DialogModule, TabViewModule, ToolbarModule, InputTextareaModule, CheckboxModule, ConfirmDialogModule
   ],
   exports: [
     SelectorCategoriaComponent,
     CommonModule, CheckboxModule, InputMaskModule, InputNumberModule, DropdownModule, InputTextModule,
-    FormsModule, ButtonModule, CalendarModule, SelectButtonModule, AccordionModule,
+    FormsModule, ButtonModule, CalendarModule, SelectButtonModule, AccordionModule,AutoCompleteModule,
     TableModule, ToastModule, RatingModule, MultiSelectModule,KeyFilterModule, FileUploadModule,
     DialogModule, TabViewModule,
     ToolbarModule, InputTextareaModule, SelectorFiltroComponent,
     SelectorEstadoComponent,
     SelectorProveedorComponent, SelectorTiPoGastoComponent,
     LoadingComponent, SelectorUbicacionComponent, ConfirmDialogModule, SelectorTiPoPagoComponent,
-    SelectorUserComponent, TicketPosComponent
+    SelectorBodegaComponent,
+    SelectorUserComponent, TicketPosComponent,TicketCierreCajaComponent
   ]
 })
 export class ComponentModule { }

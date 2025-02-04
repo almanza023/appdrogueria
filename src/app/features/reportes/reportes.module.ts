@@ -5,6 +5,7 @@ import { ReportesRoutingModule } from './reportes-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ReporteDiaComponent } from './reporte-dia/reporte-dia.component';
 import { ReporteDiaHistoricosComponent } from './reporte-dia-historicos/reporte-dia-historicos.component';
+import { ReporteCajaMenorComponent } from './reporte-caja-menor/reporte-caja-menor.component';
 
 @NgModule({
     imports: [
@@ -16,6 +17,7 @@ import { ReporteDiaHistoricosComponent } from './reporte-dia-historicos/reporte-
     declarations: [
     ReporteDiaComponent,
     ReporteDiaHistoricosComponent,
+    ReporteCajaMenorComponent
   ]
 })
 export class ReportesModule { }

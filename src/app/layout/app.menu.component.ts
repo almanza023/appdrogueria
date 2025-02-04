@@ -31,6 +31,12 @@ export class AppMenuComponent implements OnInit {
             icon: 'pi pi-fw pi-pencil',
             items: [
                 {
+                    label: 'Empresa',
+                    icon: 'pi pi-fw pi-align-justify',
+                    routerLink: 'empresa',
+
+                },
+                {
                     label: 'Categorias',
                     icon: 'pi pi-fw pi-align-justify',
                     routerLink: 'categorias',
@@ -48,14 +54,20 @@ export class AppMenuComponent implements OnInit {
                     routerLink: 'tipo-gastos',
                 },
                 {
+                    label: 'Bodegas',
+                    icon: 'pi pi-fw pi-align-justify',
+                    routerLink: 'bodegas',
+                },
+
+                {
                     label: 'Ubicaciones',
                     icon: 'pi pi-fw pi-align-justify',
                     routerLink: 'ubicaciones',
                 },
                 {
-                    label: 'Proveedores',
+                    label: 'Distribuidores',
                     icon: 'pi pi-fw pi-align-justify',
-                    routerLink: 'proveedores',
+                    routerLink: 'distribuidores',
                 },
                 {
                     label: 'Usuarios',
@@ -70,7 +82,7 @@ export class AppMenuComponent implements OnInit {
                 icon: 'pi pi-plus',
                 items: [
                     {
-                        label: 'Apertura de Caja',
+                        label: 'Apertura de Caja Diaria',
                         icon: 'pi pi-fw pi-align-justify',
                         command: () => this.reloadCurrentRoute('apertura-caja')
 
@@ -115,33 +127,18 @@ export class AppMenuComponent implements OnInit {
                 label: 'Operaciones',
                 icon: 'pi pi-plus',
                 items: [
-                    {
-                        label: 'Apertura de Caja',
-                        icon: 'pi pi-fw pi-align-justify',
-                        command: () => this.reloadCurrentRoute('apertura-caja')
 
-                    },
-                    {
-                        label: 'Productos',
-                        icon: 'pi pi-fw pi-align-justify',
-                        command: () => this.reloadCurrentRoute('productos')
-
-                    },
                     {
                         label: 'Facturar',
                         icon: 'pi pi-fw pi-align-justify',
-                        command: () => this.reloadCurrentRoute('ventas/registro')
+                        command: () => this.reloadCurrentRoute('ventas/registro/0')
                     },
                     {
                         label: 'Ventas',
                         icon: 'pi pi-fw pi-align-justify',
                         command: () => this.reloadCurrentRoute('ventas')
                     },
-                    {
-                        label: 'Gastos',
-                        icon: 'pi pi-fw pi-align-justify',
-                        command: () => this.reloadCurrentRoute('gastos')
-                    },
+
 
                 ]
             };
@@ -154,14 +151,32 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Reporte Día',
                         icon: 'pi pi-fw pi-align-justify',
-                        routerLink: 'reportes/dia',
+                        command: () => this.reloadCurrentRoute('reportes/dia')
+                    },
+                    {
+                        label: 'Reporte Historico Caja Diaria',
+                        icon: 'pi pi-fw pi-align-justify',
+                        command: () => this.reloadCurrentRoute('reportes/historicos')
 
                     },
                     {
-                        label: 'Reporte Historico',
+                        label: 'Reporte Historico Caja Menor',
                         icon: 'pi pi-fw pi-align-justify',
-                        routerLink: 'reportes/historicos',
+                        command: () => this.reloadCurrentRoute('reportes/caja-menor')
 
+                    },
+
+                ]
+            };
+            let reportesCaja=
+            {
+                label: 'Reportes',
+                icon: 'pi pi-chart-bar',
+                items: [
+                    {
+                        label: 'Reporte Día',
+                        icon: 'pi pi-fw pi-align-justify',
+                        command: () => this.reloadCurrentRoute('reportes/dia')
                     },
 
                 ]
@@ -184,12 +199,10 @@ export class AppMenuComponent implements OnInit {
             this.items.push(configuraciones);
             this.items.push(operaciones);
             this.items.push(reportes);
-        }else if (localStorage.getItem('rol') == '2'){
-            //this.items.push(reportes);
         }
-        else if (localStorage.getItem('rol') == '3'){
+        else if (localStorage.getItem('rol') == '2'){
             this.items.push(operacionesCaja);
-            this.items.push(reportes);
+            this.items.push(reportesCaja);
         }
         this.items.push(perfil);
         this.items.push(cerrar);

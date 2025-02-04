@@ -13,9 +13,12 @@ import { CajaGuard } from './core/guards/caja.guard';
             {
                 path: '', component: AppLayoutComponent,
                 children: [
-
                     {
                         path: 'dashboard', loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+                        canActivate: [AuthGuard]
+                    },
+                    {
+                        path: 'bodegas', loadChildren: () => import('./features/bodegas/bodegas.module').then(m => m.BodegasModule),
                         canActivate: [AuthGuard]
                     },
                     {
@@ -31,13 +34,17 @@ import { CajaGuard } from './core/guards/caja.guard';
                         canActivate: [AuthGuard,AdminGuard]
                     },
                     {
-                        path: 'proveedores', loadChildren: () => import('./features/proveedores/proveedores.module').then(m => m.ProveedorModule),
+                        path: 'empresa', loadChildren: () => import('./features/empresas/empresas.module').then(m => m.EmpresaModule),
+                        canActivate: [AuthGuard, CajaGuard]
+                    },
+                    {
+                        path: 'distribuidores', loadChildren: () => import('./features/proveedores/proveedores.module').then(m => m.ProveedorModule),
                         canActivate: [AuthGuard, CajaGuard]
                     },
 
                     {
                         path: 'productos', loadChildren: () => import('./features/productos/productos.module').then(m => m.ProductosModule),
-                        canActivate: [AuthGuard, CajaGuard]
+                        canActivate: [AuthGuard, AdminGuard]
                     },
                     {
                         path: 'ubicaciones', loadChildren: () => import('./features/ubicaciones/ubicaciones.module').then(m => m.UbicacionesModule),
@@ -53,7 +60,7 @@ import { CajaGuard } from './core/guards/caja.guard';
                     },
                     {
                         path: 'apertura-caja', loadChildren: () => import('./features/apertura-caja/apertura-caja.module').then(m => m.AperturaCajaModule),
-                        canActivate: [AuthGuard, CajaGuard]
+                        canActivate: [AuthGuard]
                     },
                     {
                         path: 'usuarios', loadChildren: () => import('./features/usuarios/usuarios.module').then(m => m.UsuariosModule),

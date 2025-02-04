@@ -1,7 +1,7 @@
 export interface Proveedor {
     id?: number;
     nombre?: string,
-	numerodocumento?: string ,
+	nombre_visitador?: string ,
 	telefono?: string ,
 	estado?: boolean
 

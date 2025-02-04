@@ -27,6 +27,13 @@
                         <p-calendar [(ngModel)]="fechaFinal" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
                     </div>
                 </div>
+                <div class="col-12 md:col-3">
+                    <div class="field">
+                        <label>Estado</label>
+                        <p-dropdown [options]="estados" [(ngModel)]="filtroEstado" placeholder="Seleccione Estado" optionLabel="nombre" optionValue="id"></p-dropdown>
+                    </div>
+                </div>
+
 
             </div>
             <div class="grid mt-2">
@@ -130,7 +137,7 @@
                         <td>
                             <div class="flex">
                                 <button
-                                    (click)="getVenta(item.id)"
+                                    (click)="getVenta(item.id, item.observaciones)"
                                     pButton
                                     pRipple
                                     icon="pi pi-eye"
@@ -138,7 +145,7 @@
                                     tooltip="Ver Historial"
                                 ></button>
                                 <p-button *ngIf="item.estado === 1 || item.estado === 0 "
-                                    (click)="bloqueoCliente(item)"
+                                    (click)="anularVenta(item)"
                                     icon="pi pi-times"
                                     styleClass="p-button-rounded p-button-danger"
                                     tooltip="Anular Venta"
@@ -152,6 +159,13 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="3"><strong>Totales</strong></td>
+                        <td><strong>{{ calcularTotalGeneral() | currency }}</strong></td>
+                    </tr>
+                </ng-template>
+
             </p-table>
         </div>
     </div>
@@ -189,6 +203,14 @@
                 <h3>Total a Pagar: {{ calcularTotal() | currency }}</h3>
                 <h3>Cantidad Productos: {{ totalcantidad  }}</h3>
             </div>
+
+            <div *ngIf="observaciones!=''" class="field mt-2">
+                <label for="observaciones"><b>Observaciones</b></label>
+                <p style="font-size: 1.2rem">{{observaciones}}</p>
+            </div>
+
+
+
         </div>
         </div>
 </p-dialog>
@@ -204,10 +226,14 @@
             class="pi pi-exclamation-triangle mr-3"
             style="font-size: 2rem"
         ></i>
-        <span *ngIf="pedido">
-            Esta seguro de Cambiar el estado al Registro
-            <b>{{ pedido.id }}</b>?
+        <span *ngIf="venta">
+            Esta seguro de Anular la Venta
+            <b>{{ venta.id }}</b>?
         </span>
+    </div>
+    <div class="field">
+        <label for="motivo">Motivo:</label>
+        <textarea id="motivo" pInputTextarea [(ngModel)]="venta.observaciones" rows="3" class="w-full"></textarea>
     </div>
     <ng-template pTemplate="footer">
         <button

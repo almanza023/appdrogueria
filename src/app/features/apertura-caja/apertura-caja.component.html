@@ -151,6 +151,17 @@
                     </div>
                 </div>
                 <div class="field grid">
+                    <label htmlFor="bodega" class="col-12 mb-1 md:col-1 md:mb-0">
+                        <b>Seleccionar Bodega</b>
+                    </label>
+                    <div class="col-12 md:col-12">
+                        <app-selector-bodega
+                            (itemSeleccionado)="caja.bodega_id = $event.id"
+                        ></app-selector-bodega>
+                    </div>
+                </div>
+                
+                <div class="field grid">
                     <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
                         <b>Fecha Inicio</b>
                     </label>

@@ -1,6 +1,7 @@
 export interface AperturaCaja {
     id?: number;
     user_id?: string,
+    bodega_id?: string,
 	monto_inicial?: string ,
 	monto_final?: string ,
 	fecha?: Date ,

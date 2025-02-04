@@ -7,6 +7,7 @@ import { MessageService } from 'primeng/api';
 
 import {  AperturaCajaService } from 'src/app/core/services/apertura-caja.service';
 import { AperturaCaja } from 'src/app/core/interface/AperturaCaja';
+import { SelectorBodegaComponent } from 'src/app/shared/components/selector-bodega/selector-bodega.component';
 
 
 @Component({
@@ -33,8 +34,7 @@ export class AperturaCajaComponent {
     objectModel:AperturaCaja={};
 
     nombreModulo: string = 'Módulo de Apertura de Caja';
-
-
+    @ViewChild(SelectorBodegaComponent) selectBodega: SelectorBodegaComponent;
 
     constructor(
         private service: AperturaCajaService,
@@ -74,6 +74,7 @@ export class AperturaCajaComponent {
         this.clienteDialog = true;
         this.seleccionado = {};
         this.posicion={};
+        this.selectBodega.reiniciarComponente();
     }
 
     deleteSelectedProducts() {
@@ -84,6 +85,7 @@ export class AperturaCajaComponent {
         this.caja = { ...item };
         this.clienteDialog = true;
         this.caja.editar = true;
+        this.selectBodega.filtrar(this.caja.bodega_id)
     }
 
     bloqueoCliente(cliente: any) {
@@ -138,11 +140,11 @@ export class AperturaCajaComponent {
     save() {
         this.submitted = true;
         this.caja.user_id = localStorage.getItem('user_id');
-        if (this.caja.fecha == undefined) {
+        if (this.caja.bodega_id == undefined) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
-                detail: 'Debe ingresar una Fecha',
+                detail: 'Debe seleccionar una Bodega',
                 life: 3000,
             });
             return;
@@ -249,6 +251,7 @@ export class AperturaCajaComponent {
     mapearDatos(jugaodr:any, estado:boolean){
         let model:AperturaCaja={};
         model.user_id=this.caja.user_id;
+        model.bodega_id=this.caja.bodega_id;
         model.fecha=this.caja.fecha;
         model.monto_inicial=this.caja.monto_inicial;
         model.descripcion=this.caja.descripcion;

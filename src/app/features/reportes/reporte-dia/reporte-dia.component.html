@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<app-loading *ngIf="loading"></app-loading>
 <div class="grid">
 
     <div class="col-12 md:col-12" *ngIf="data && data.base_inicial">
@@ -7,8 +8,9 @@
                 <p-button label="Actualizar" icon="pi pi-refresh" (click)="reloadPage()" styleClass="p-button-success"></p-button>
             </div>
             <h5><b>Detalle de Caja  </b></h5>
-            <h5><b>Fecha Inicio: {{ data.fecha_inicio}} </b></h5>
-            <h5><b>Estado: {{ data.estado_caja}} </b></h5>
+            <h5><b>N° de Apertura de Caja: {{ data?.caja_id}} </b></h5>
+            <h5><b>Fecha Inicio: {{ data?.fecha_inicio}} </b></h5>
+            <h5><b>Estado: {{ data?.estado_caja}} </b></h5>
             <br>
             <div class="grid">
                 <div class="col-6">
@@ -36,6 +38,7 @@
                             <td colspan="2" class="flex justify-content-between">
                                 <p-button label="Ver Historial de Ventas" icon="pi pi-file" (click)="verHistorialVentas()" styleClass="p-button-info"></p-button>
                                 <p-button label="Ver Historial de Gastos" icon="pi pi-file" (click)="verHistorialGastos()" styleClass="p-button-warning"></p-button>
+                                <app-ticket-cierre-caja [data]="dataReport"></app-ticket-cierre-caja>
                             </td>
                         </tr>
                     </ng-template>
@@ -65,7 +68,7 @@
                     </p-table>
                 </div>
                 <div class="col-12" *ngIf="data.estado==1">
-                    <p-button label="Cerrar Caja" icon="pi pi-lock" styleClass="p-button-success w-full" (click)="confirm1(data)" [style]="{'background-color': 'green', 'border-color': 'green'}"></p-button>
+                    <p-button *ngIf="!bloquear" label="Cerrar Caja"  icon="pi pi-lock" styleClass="p-button-success w-full" (click)="confirm1(data)" [style]="{'background-color': 'green', 'border-color': 'green'}"></p-button>
             </div>
         </div>
     </div>

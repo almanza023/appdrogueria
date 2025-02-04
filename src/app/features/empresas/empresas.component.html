@@ -7,11 +7,6 @@
                     <h3>{{ nombreModulo }}</h3>
                 </div>
             </div>
-            <div class="field grid justify-content-start">
-                <div class="col-12 md:col-2 ">
-                    <p-button label="Crear" styleClass="p-button-success" icon="pi pi-plus" (click)="openNew()"></p-button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -21,8 +16,8 @@
         <div class="card px-6 py-6">
             <p-toast></p-toast>
             <p-table #dt [value]="data" [columns]="cols" [rows]="10" [globalFilterFields]="[
-                    'nombre',
-                    'username',
+                    'descripcion',
+                    'id',
                     'estado',
                 ]" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10, 20, 30]" [showCurrentPageReport]="true" [rowHover]="true" responsiveLayout="scroll" currentPageReportTemplate="Mostrando {first} to {last} de {totalRecords} registros" dataKey="id">
                 <ng-template pTemplate="caption">
@@ -48,15 +43,22 @@
                             Nombre
                             <p-sortIcon field="nombre"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="username">
-                            Usuario
-                            <p-sortIcon field="username"></p-sortIcon>
+                        <th pSortableColumn="nit">
+                            Nit
+                            <p-sortIcon field="nit"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="rol">
-                            Rol
-                            <p-sortIcon field="rol"></p-sortIcon>
+                        <th pSortableColumn="telefono">
+                            Teléfono
+                            <p-sortIcon field="telefono"></p-sortIcon>
                         </th>
-
+                        <th pSortableColumn="direccion">
+                            Dirección
+                            <p-sortIcon field="direccion"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="contacto">
+                            Contacto
+                            <p-sortIcon field="contacto"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="estado">
                             Estado
                             <p-sortIcon field="estado"></p-sortIcon>
@@ -69,25 +71,29 @@
                         <td style="width: 10%; min-width: 10rem">
                             <span class="p-column-title">Código</span> {{ item.id }}
                         </td>
-                        <td style="width: 32%; min-width: 10rem">
+                        <td style="width: 54%; min-width: 10rem">
                             <span class="p-column-title">Nombre</span> {{ item.nombre }}
                         </td>
-                        <td style="width: 22%; min-width: 10rem">
-                            <span class="p-column-title">Usuario</span> {{ item.username }}
+                        <td style="width: 54%; min-width: 10rem">
+                            <span class="p-column-title">Nit</span> {{ item.nit }}
                         </td>
-
-                        <td style="width: 26%; min-width: 10rem">
-                            <span class="p-column-title">Rol</span> {{ item.rol===1?'ADMINISTRADOR':'VENDEDOR'}}
+                        <td style="width: 54%; min-width: 10rem">
+                            <span class="p-column-title">Teléfono</span> {{ item.telefono }}
                         </td>
-
+                        <td style="width: 54%; min-width: 10rem">
+                            <span class="p-column-title">Dirección</span> {{ item.direccion }}
+                        </td>
+                        <td style="width: 54%; min-width: 10rem">
+                            <span class="p-column-title">Contacto</span> {{ item.contacto }}
+                        </td>
                         <td style="width: 26%; min-width: 10rem">
                             <span class="p-column-title">Estado</span> {{ item.estado=="1"?'ACTIVO':'BLOQUEADO'}}
                         </td>
 
                         <td>
                             <div class="flex">
-                                <button (click)="editProduct(item)" pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"></button>
-                                <p-button (click)="bloqueoCliente(item)" icon="pi pi-check" styleClass="p-button-rounded p-button-warning"></p-button>
+                                <button (click)="edit(item)" pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"></button>
+
 
                             </div>
                         </td>
@@ -96,7 +102,7 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="clienteDialog" [style]="{width: '660px'}" [modal]="true" header class="p-fluid">
+        <p-dialog [(visible)]="empresaDialog" [style]="{width: '450px'}" [modal]="true" header class="p-fluid">
             <div class="grid">
                 <div class="col-12">
                     <div class="card p-fluid">
@@ -107,60 +113,63 @@
                                 </h3>
                             </div>
                         </div>
-                       <div>
                         <div class="field grid">
                             <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-								<b>Nombre </b>
+								<b>Nombre</b>
 							</label>
                             <div class="col-12 md:col-12">
-                                <input type="text" pInputText [(ngModel)]="persona.nombre" />
+
+                                <input type="text" pInputText [(ngModel)]="empresa.nombre" />
 
                             </div>
                         </div>
                         <div class="field grid">
                             <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-								<b>Usuario </b>
+								<b>Nit</b>
 							</label>
                             <div class="col-12 md:col-12">
-                                <input type="text" pInputText [(ngModel)]="persona.username" />
+
+                                <input type="text" pInputText [(ngModel)]="empresa.nit" />
 
                             </div>
                         </div>
-                       </div>
-
                         <div class="field grid">
                             <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-								<b>Contraseña</b>
+								<b>Teléfono</b>
 							</label>
                             <div class="col-12 md:col-12">
-                                <input type="password" pInputText [(ngModel)]="persona.password" />
+
+                                <input type="text" pInputText [(ngModel)]="empresa.telefono" />
+
                             </div>
                         </div>
-
-
                         <div class="field grid">
                             <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
-								<b>Rol</b>
+								<b>Dirección</b>
 							</label>
                             <div class="col-12 md:col-12">
-                                <p-dropdown [options]="roles" optionLabel="descripcion" appendTo="body" [filter]="true" [(ngModel)]="rol" filterBy="descripcion,id" [showClear]="true" placeholder="Seleccione una Rol" (onChange)="onChange($event)">
-                                    <ng-template let-item pTemplate="item">
-                                        <div class="flex align-items-center gap-2">
-                                            <div>{{item.descripcion }}</div>
-                                        </div>
-                                    </ng-template>
-                                </p-dropdown>
+
+                                <input type="text" pInputText [(ngModel)]="empresa.direccion" />
+
                             </div>
                         </div>
+                        <div class="field grid">
+                            <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
+								<b>Contacto</b>
+							</label>
+                            <div class="col-12 md:col-12">
 
+                                <input type="text" pInputText [(ngModel)]="empresa.contacto" />
 
+                            </div>
+                        </div>
 
                     </div>
                 </div>
             </div>
 
             <ng-template pTemplate="footer">
-                <button (click)="saveProduct()" pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success"></button>
+                <button (click)="save()" pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success"></button>
                 <button (click)="hideDialog()" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-danger"></button>
             </ng-template>
         </p-dialog>
@@ -168,10 +177,10 @@
         <p-dialog [(visible)]="deleteProductDialog" [modal]="true" [style]="{ width: '450px' }" header="Confirmar">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="persona">
+                <span *ngIf="empresa">
 					Esta seguro de Cambiar el estado al Registro
 					<b>
-						{{ persona.nombre }}
+						{{ empresa.nombre }}
 					</b>
 					?
 				</span>
