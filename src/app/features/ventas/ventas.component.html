@@ -132,7 +132,12 @@
 
                         <td style="width: 26%; min-width: 10rem">
                             <span class="p-column-title">Estado</span>
-                            {{ item.estado === 0 ? 'PENDIENTE' : item.estado === 1 ? 'FACTURADA' : 'ANULADA' }}
+                            {{
+                                item.estado == 0 ? 'PENDIENTE' :
+                                item.estado == 1 ? 'FACTURADA' :
+                                item.estado == 2 ? 'ANULADA' :
+                                ''
+                            }}
                         </td>
                         <td>
                             <div class="flex">
@@ -144,13 +149,13 @@
                                     class="p-button-rounded p-button-success mr-2"
                                     tooltip="Ver Historial"
                                 ></button>
-                                <p-button *ngIf="item.estado === 1 || item.estado === 0 "
+                                <p-button *ngIf="item.estado == 1 || item.estado == 0 "
                                     (click)="anularVenta(item)"
                                     icon="pi pi-times"
                                     styleClass="p-button-rounded p-button-danger"
                                     tooltip="Anular Venta"
                                 ></p-button>
-                                <p-button
+                                <p-button *ngIf="item.estado !=2"
                                     (click)="openNew(item.id)"
                                     icon="pi pi-check"
                                     styleClass="p-button-rounded p-button-info"

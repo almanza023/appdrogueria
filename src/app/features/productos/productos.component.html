@@ -377,11 +377,11 @@
                 <div class="col-12 md:col-4" *ngIf="!producto.editar">
                     <label htmlFor="laboratorio" class="font-bold mb-2">Laboratorio</label>
                     <input type="text" pInputText formControlName="laboratorio" required>
-                    <small *ngIf="productoForm.get('laboratorio').invalid && productoForm.get('laboratorio').touched" class="p-error">El laboratorio es obligatorio</small>
+                    <!-- <small *ngIf="productoForm.get('laboratorio').invalid && productoForm.get('laboratorio').touched" class="p-error">El laboratorio es obligatorio</small> -->
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="lote" class="font-bold mb-2">N° Lote</label>
-                    <input type="text" pInputText formControlName="lote" required>
+                    <input type="text" pInputText formControlName="lote" required value="1">
                 </div>
                 <div class="col-12 md:col-4" *ngIf="!producto.editar">
                     <label htmlFor="stockActual" class="font-bold mb-2">Stock Actual</label>

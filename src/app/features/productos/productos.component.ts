@@ -69,10 +69,10 @@ export class ProductosComponent {
             nombre: ['', [Validators.required]],
             codigo: [''],
             descripcion: [''],
-            laboratorio: [''],
+            laboratorio: ['OTRO'],
             lote: [''],
             fecha_vencimiento: [''],
-            precio: ['', [Validators.required]],
+            precio: ['0'],
             stock_actual: ['', [Validators.required]],
             detalles: this.fb.array([], Validators.required),
         });
@@ -84,6 +84,8 @@ export class ProductosComponent {
             stock_general: ['', [Validators.required]],
             detalles: this.fb.array([], Validators.required),
         });
+
+
     }
 
     get detalles(): FormArray {
@@ -257,6 +259,8 @@ export class ProductosComponent {
     saveProduct() {
         this.producto.user_id = localStorage.getItem('user_id');
         this.productoForm.get('user_id').setValue(this.producto.user_id);
+        this.productoForm.get('lote').setValue(1);
+        this.productoForm.get('laboratorio').setValue('OTROS');
         console.log(this.productoForm.value)
         if (this.producto.id == undefined) {
             if (this.productoForm.valid) {

@@ -67,7 +67,7 @@
                         </ng-template>
                     </p-table>
                 </div>
-                <div class="col-12" *ngIf="data.estado==1">
+                <div class="col-12" *ngIf="data.estado==1 && rol=='1'">
                     <p-button *ngIf="!bloquear" label="Cerrar Caja"  icon="pi pi-lock" styleClass="p-button-success w-full" (click)="confirm1(data)" [style]="{'background-color': 'green', 'border-color': 'green'}"></p-button>
             </div>
         </div>

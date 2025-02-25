@@ -139,13 +139,12 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-producto>
                     <tr [ngStyle]="{'background-color': producto.etiqueta_vencimiento === 'Verde' ? '#abebc6' : producto.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : producto.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
-                        <td class="col-40">{{ producto.nombre }}
+                        <td class="col-40"><h4><b>{{ producto.nombre }}</b></h4>
                             <br>
-                            <b>{{ producto.proveedor?.nombre  }}</b>
-                            <b>{{ producto.laboratorio  }}</b><br>
+                            <b>{{ producto.codigo  }}</b><br>
                             <b>{{ producto.fecha_vencimiento | date:'dd/MM/yyyy'  }}</b>
                             <br>
-                            <b>{{ producto.precio | currency }}</b>
+                            <b><h5>{{ producto.precio | currency }}</h5></b>
                         </td>
                         <td class="col-15">
                             <input pInputText type="number" [(ngModel)]="producto.cantidad" [ngModelOptions]="{ standalone: true }" min="1" [value]="1" (change)="producto.cantidad = producto.cantidad || 1"  />

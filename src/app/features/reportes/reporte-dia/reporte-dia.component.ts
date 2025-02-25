@@ -22,6 +22,7 @@ export class ReporteDiaComponent {
     dataReport:any;
     bloquear:boolean=false;
     loading:boolean=false;
+    rol:string="";
 
     ngOnInit(): void {
         this.today = this.formatDate(new Date());
@@ -29,6 +30,7 @@ export class ReporteDiaComponent {
         this.filter.fechaInicio = this.today;
         this.filter.fechaFinal=this.todayF;
         this.getData(this.filter);
+        this.rol=localStorage.getItem('rol');
     }
 
     constructor(
