@@ -44,7 +44,7 @@ import { CajaGuard } from './core/guards/caja.guard';
 
                     {
                         path: 'productos', loadChildren: () => import('./features/productos/productos.module').then(m => m.ProductosModule),
-                        canActivate: [AuthGuard, AdminGuard]
+                        canActivate: [AuthGuard, CajaGuard]
                     },
                     {
                         path: 'ubicaciones', loadChildren: () => import('./features/ubicaciones/ubicaciones.module').then(m => m.UbicacionesModule),

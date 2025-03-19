@@ -93,7 +93,7 @@
 
         </div>
         <div class="field flex align-items-center justify-content-end">
-            <p-button label="Nueva Venta" icon="pi pi-plus" styleClass="p-button-success ml-2" (click)="redireccionar(0)"></p-button>
+            <p-button label="Nueva Venta" icon="pi pi-plus" styleClass="p-button-success ml-2" (click)="redireccionar('0')"></p-button>
             <app-ticket-pos *ngIf="infoVenta?.venta?.estado==1"  [data]="infoVenta"></app-ticket-pos>
             <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger ml-2" (click)="redireccionarVentas()"></p-button>
 
@@ -115,9 +115,9 @@
                 responsiveLayout="scroll">
 
                 <ng-template pTemplate="caption">
-                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Información General de Productos</h5>
-                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <div class="flex flex-column align-items-center">
+                        <h5 class="m-0 mb-3">Información General de Productos</h5>
+                        <span class="p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input
                                 (input)="onGlobalFilter(dt, $event)"

@@ -127,7 +127,11 @@ export class AppMenuComponent implements OnInit {
                 label: 'Operaciones',
                 icon: 'pi pi-plus',
                 items: [
-
+                    {
+                        label: 'Productos',
+                        icon: 'pi pi-fw pi-align-justify',
+                        command: () => this.reloadCurrentRoute('productos')
+                    },
                     {
                         label: 'Facturar',
                         icon: 'pi pi-fw pi-align-justify',

@@ -40,6 +40,7 @@ import { SelectorUbicacionComponent } from './selector-ubicacion/selector-ubicac
 import { TicketPosComponent } from 'src/app/shared/components/ticket-pos/ticket-pos.component';
 import { SelectorBodegaComponent } from './selector-bodega/selector-bodega.component';
 import { TicketCierreCajaComponent } from './ticket-cierre-caja/ticket-cierre-caja.component';
+import { TicketPosProductosComponent } from './ticketpos-productos/ticketpos-productos.component';
 
 @NgModule({
   declarations: [
@@ -54,8 +55,9 @@ import { TicketCierreCajaComponent } from './ticket-cierre-caja/ticket-cierre-ca
     SelectorTiPoGastoComponent,
     SelectorUserComponent,
     SelectorBodegaComponent,
-    TicketPosComponent, 
-    TicketCierreCajaComponent
+    TicketPosComponent,
+    TicketCierreCajaComponent,
+    TicketPosProductosComponent
   ],
   imports: [
     CommonModule,
@@ -77,7 +79,7 @@ import { TicketCierreCajaComponent } from './ticket-cierre-caja/ticket-cierre-ca
     SelectorProveedorComponent, SelectorTiPoGastoComponent,
     LoadingComponent, SelectorUbicacionComponent, ConfirmDialogModule, SelectorTiPoPagoComponent,
     SelectorBodegaComponent,
-    SelectorUserComponent, TicketPosComponent,TicketCierreCajaComponent
+    SelectorUserComponent, TicketPosComponent,TicketCierreCajaComponent,TicketPosProductosComponent
   ]
 })
 export class ComponentModule { }

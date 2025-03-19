@@ -95,6 +95,19 @@ export class VentasComponent {
             rol:localStorage.getItem('rol'),
             user_id:localStorage.getItem('user_id'),
         };
+        // Format date to YYYY-mm-dd
+        if (data.fecha_inicio) {
+            const date = new Date(data.fecha_inicio);
+            data.fecha_inicio = date.getFullYear() + '-' +
+                                String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                                String(date.getDate()).padStart(2, '0');
+        }
+        if (data.fecha_fin) {
+            const date = new Date(data.fecha_fin);
+            data.fecha_fin = date.getFullYear() + '-' +
+                            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(date.getDate()).padStart(2, '0');
+        }
 
         if(rol != "1") {
             data.user_id = localStorage.getItem('user_id');

@@ -99,12 +99,14 @@ export class ReporteDiaComponent {
                             totalneto:this.data.totalneto,
                             ventas: this.data.ventas.map((v:any) => {
                                 return {
+                                    id:v.id,
                                     fecha:v.created_at,
                                     total:v.total,
                                 }
                             }),
                             gastos: this.data.gastos.map((g:any) => {
                                 return {
+                                    id:g.id,
                                     tipo:g.tipogasto?.nombre,
                                     fecha:g.created_at,
                                     total:g.valortotal,

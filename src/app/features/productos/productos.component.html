@@ -11,6 +11,14 @@
             <div class="field grid justify-content-start">
                 <div class="col-12 md:col-2">
                     <p-button
+                        label="Consultar"
+                        styleClass="p-button-info"
+                        icon="pi pi-search"
+                        (click)="getDataAll()"
+                    ></p-button>
+                </div>
+                <div class="col-12 md:col-2">
+                    <p-button *ngIf="rol=='1'"
                         label="Crear"
                         styleClass="p-button-success"
                         icon="pi pi-plus"
@@ -26,7 +34,7 @@
     <div class="col-12">
         <div class="card px-6 py-6">
             <div class="grid justify-content-end">
-                <p-button label="Exportar" icon="pi pi-file" (click)="exportarPDF()" styleClass="p-button-success"></p-button>
+                <p-button *ngIf="rol=='1'" label="Exportar" icon="pi pi-file" (click)="exportarPDF()" styleClass="p-button-success"></p-button>
             </div>
 
 
@@ -87,13 +95,21 @@
                             Precio Venta
                             <p-sortIcon field="precio"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="stock_actual">
+                        <th pSortableColumn="stock_actual" *ngIf="rol=='1'">
                             Stock General
                             <p-sortIcon field="stock_actual"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="stock_actual">
+                        <th pSortableColumn="stock_actual" *ngIf="rol=='1'">
                             Stock Por Bodegas
                             <p-sortIcon field="stock_actual"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="precio_compra" *ngIf="rol=='1'">
+                            Precio Compra
+                            <p-sortIcon field="precio_compra"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="ganancia" *ngIf="rol=='1'">
+                            Ganancia
+                            <p-sortIcon field="ganancia"></p-sortIcon>
                         </th>
                         <th pSortableColumn="fecha_vencimiento">
                             Fecha Vencimiento
@@ -103,7 +119,7 @@
                             Estado
                             <p-sortIcon field="estado"></p-sortIcon>
                         </th>
-                        <th></th>
+                        <th *ngIf="rol=='1'"></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
@@ -133,19 +149,25 @@
                             {{ item.precio | currency }}
                         </td>
 
-                        <td style="width: 32%; min-width: 10rem">
+                        <td style="width: 32%; min-width: 10rem" *ngIf="rol=='1'">
                             <span class="p-column-title">Stock Actual</span>
                             {{ item.stock_actual }}
                         </td>
-
-                        <td>
+                        <td *ngIf="rol=='1'">
                             <ul>
                                 <li *ngFor="let bodega of item.bodegas">
                                     <b>{{ bodega.bodega?.nombre }}: </b>{{ bodega.cantidad }}
                                 </li>
                             </ul>
                         </td>
-
+                        <td style="width: 32%; min-width: 10rem" *ngIf="rol=='1'">
+                            <span class="p-column-title">Precio Compra</span>
+                            {{ item.precio_compra  | currency }}
+                        </td>
+                        <td style="width: 32%; min-width: 10rem" *ngIf="rol=='1'">
+                            <span class="p-column-title">Ganancia</span>
+                            {{ item.ganancia  | currency }}
+                        </td>
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Fecha Vencimiento</span>
                             {{ item.fecha_vencimiento | date:'dd/MM/yyyy' }}
@@ -155,7 +177,7 @@
                             <span class="p-column-title">Estado</span>
                             {{ item.estado == "1" ? "ACTIVO" : "BLOQUEADO" }}
                         </td>
-                        <td>
+                        <td *ngIf="rol=='1'">
                             <div class="flex">
                                 <div style="display: flex; flex-direction: column">
                                     <button
@@ -196,6 +218,19 @@
                         </td>
                     </tr>
                 </ng-template>
+<ng-template pTemplate="footer">
+    <tr>
+        <td  style="text-align: right; font-weight: bold;">
+            Total Utilidad:
+        </td>
+
+        <td *ngIf="rol=='1'" style="font-weight: bold;">
+            {{ getTotalGanancia() | currency }}
+        </td>
+        <td colspan="3">
+        </td>
+    </tr>
+</ng-template>
             </p-table>
         </div>
     </div>
@@ -383,7 +418,7 @@
                     <label htmlFor="lote" class="font-bold mb-2">N° Lote</label>
                     <input type="text" pInputText formControlName="lote" required value="1">
                 </div>
-                <div class="col-12 md:col-4" *ngIf="!producto.editar">
+                <div class="col-12 md:col-4">
                     <label htmlFor="stockActual" class="font-bold mb-2">Stock Actual</label>
                     <input type="number" pInputText formControlName="stock_actual" required>
                     <small *ngIf="productoForm.get('stock_actual').invalid && productoForm.get('stock_actual').touched" class="p-error">Ingrese un stock válido</small>
@@ -392,6 +427,10 @@
                     <label htmlFor="precio" class="font-bold mb-2">Precio Venta</label>
                     <input type="text" pInputText formControlName="precio" required>
                     <small *ngIf="productoForm.get('precio').invalid && productoForm.get('precio').touched" class="p-error">Ingrese un precio válido</small>
+                </div>
+                <div class="col-12 md:col-4">
+                    <label htmlFor="precio" class="font-bold mb-2">Precio Compra</label>
+                    <input type="text" pInputText formControlName="precio_compra" required>
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="ubicacion" class="font-bold mb-2">Ubicación</label>

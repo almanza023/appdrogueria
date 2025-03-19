@@ -36,6 +36,7 @@ export class RegistroVentasComponent implements OnInit {
     tipopago: any = {};
     loading:boolean=false;
     empresa:any={};
+    @ViewChild('dt') dt: Table | undefined;
 
     constructor(
         private productoService: ProductosService,
@@ -139,6 +140,12 @@ export class RegistroVentasComponent implements OnInit {
                 precio: producto.precio,
             };
             this.crearDetalle(detalle);
+            const input = document.querySelector('.w-full.sm\\:w-auto') as HTMLInputElement;
+            if (input) {
+                input.value = '';
+            }
+            this.dt.filterGlobal('', 'contains');
+
         }
     }
 
@@ -270,6 +277,7 @@ export class RegistroVentasComponent implements OnInit {
                     severity = 'success';
                     summary = 'Exitoso';
                     this.detalles = response.data;
+
                     //this.displayDialog = false;
                 } else {
                     severity = 'warn';

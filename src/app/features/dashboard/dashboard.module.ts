@@ -12,6 +12,7 @@ import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { ToastModule } from 'primeng/toast';
 import {  DropdownModule } from 'primeng/dropdown';
+import { ComponentModule } from 'src/app/shared/components/component.module';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import {  DropdownModule } from 'primeng/dropdown';
         PanelMenuModule,
         ButtonModule,
         ToastModule,
-        DashboardsRoutingModule
+        DashboardsRoutingModule,
+        ComponentModule
     ],
     declarations: [DashboardComponent]
 })

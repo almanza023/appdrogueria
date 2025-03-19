@@ -47,6 +47,7 @@ export class ProductosComponent {
     bodegas: any = [];
     trasladoDialog:boolean=false;
     loading:boolean=true;
+    rol:string="";
 
     constructor(
         private service: ProductosService,
@@ -56,7 +57,7 @@ export class ProductosComponent {
     ) {}
 
     ngOnInit() {
-
+        this.rol=localStorage.getItem('rol');
         this.getDataAll();
         this.getLaboratorios();
         this.cols = [];
@@ -73,6 +74,7 @@ export class ProductosComponent {
             lote: [''],
             fecha_vencimiento: [''],
             precio: ['0'],
+            precio_compra:['0'],
             stock_actual: ['', [Validators.required]],
             detalles: this.fb.array([], Validators.required),
         });
@@ -175,6 +177,7 @@ export class ProductosComponent {
     }
 
     editProduct(item: any) {
+        console.log(this.producto);
         this.producto = { ...item };
         this.clienteDialog = true;
         this.producto.editar = true;
@@ -200,6 +203,7 @@ export class ProductosComponent {
             .setValue(this.producto.laboratorio);
         this.productoForm.get('lote').setValue(this.producto.lote);
         this.productoForm.get('precio').setValue(this.producto.precio);
+        this.productoForm.get('precio_compra').setValue(this.producto.precio_compra || 0);
         this.productoForm
             .get('stock_actual')
             .setValue(this.producto.stock_actual);
@@ -261,6 +265,20 @@ export class ProductosComponent {
         this.productoForm.get('user_id').setValue(this.producto.user_id);
         this.productoForm.get('lote').setValue(1);
         this.productoForm.get('laboratorio').setValue('OTROS');
+
+        // Validate that price is greater than purchase price
+        const precio = this.productoForm.get('precio')?.value;
+        const precioCompra = this.productoForm.get('precio_compra')?.value;
+
+        if (precioCompra && precio <= precioCompra) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'El precio de venta debe ser mayor al precio de compra',
+                life: 3000,
+            });
+            return;
+        }
         console.log(this.productoForm.value)
         if (this.producto.id == undefined) {
             if (this.productoForm.valid) {
@@ -411,6 +429,7 @@ export class ProductosComponent {
         this.ubicacionComponent.reiniciarComponente();
         this.proveedorComponent.reiniciarComponente();
         this.productoForm.reset();
+        this.productoForm.get('precio_compra')?.setValue(0);
 
     }
 
@@ -558,19 +577,25 @@ export class ProductosComponent {
     }
 
     exportarPDF() {
-        const worksheet = XLSX.utils.json_to_sheet(this.data.map(item => ({
-            'Nombre': item.nombre,
-            'Descripción': item.descripcion,
-            'C digo': item.codigo,
-            'Lote': item.lote,
-            'Precio Venta': item.precio,
-            'Stock General': item.stock_actual,
-            'Fecha Vencimiento': item.fecha_vencimiento,
-            'Categoría': item.categoria?.nombre,
-            'Distribuidor': item.proveedor?.nombre,
-            'Laboratorio': item.laboratorio,
-            'Estado': item.estado == "1" ? "Activo" : "Inactivo",
-        })));
+        const worksheet = XLSX.utils.json_to_sheet(this.data
+            .sort((a, b) => a.id - b.id) // Sort by id in ascending order
+            .map(item => ({
+                'Código': item.id,
+                'Nombre': item.nombre,
+                'Descripción': item.descripcion,
+                'C digo': item.codigo,
+                'Lote': item.lote,
+                'Precio Venta': item.precio,
+                'Precio Compra': item.precio_compra,
+                'Ganancia': item.ganancia,
+                'Porcentaje': item.porcentajegan ? item.porcentajegan+'%' : '',
+                'Stock General': item.stock_actual,
+                'Fecha Vencimiento': item.fecha_vencimiento,
+                'Categoría': item.categoria?.nombre,
+                'Distribuidor': item.proveedor?.nombre,
+                'Laboratorio': item.laboratorio,
+                'Estado': item.estado == "1" ? "Activo" : "Inactivo",
+            })));
         const wscols = [
             { wch: 20 }, // Nombre
             { wch: 30 }, // Descripci n
@@ -591,5 +616,18 @@ export class ProductosComponent {
         const fechaFormateada = `${fecha.getDate()}_${fecha.getMonth() + 1}_${fecha.getFullYear()}`;
         XLSX.writeFile(workbook, `reporte_productos_${fechaFormateada}.xlsx`);
     }
+
+
+getTotalGanancia(): number {
+    let total = 0;
+    if (this.data && this.data.length > 0) {
+        total = this.data.reduce((sum, item) => {
+            const gananciaUnitaria = Number(item.ganancia)
+            return sum + (gananciaUnitaria);
+        }, 0);
+    }
+    return total;
+}
+
 
 }

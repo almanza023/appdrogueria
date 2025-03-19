@@ -30,7 +30,8 @@ export class DashboardComponent implements OnInit {
         { label: '180 días', value: 180 },
     ];
     diasFiltrar: number = 180;
-
+    productos:any=[];
+    productoTerminados:any=[];
 
     constructor(
         private service: AperturaCajaService,
@@ -45,6 +46,7 @@ export class DashboardComponent implements OnInit {
     ngOnInit() {
         this.getDataAll();
         this.buscarProductosProximosAVencer();
+        this.getProductosInventario();
 
     }
 
@@ -123,6 +125,33 @@ export class DashboardComponent implements OnInit {
             }
         );
     }
+
+    getProductosInventario() {
+        this.productoService.getProductoInventario().pipe(
+            finalize(() => {
+                this.getProductosTerminados();
+            })
+        ).subscribe(
+            (response) => {
+                //console.log(response.data);
+                this.productos = response.data;
+            },
+            (error) => {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: error.error.data,
+                    life: 3000,
+                });
+            }
+        );
+    }
+
+getProductosTerminados() {
+    // Filter products where stock_actual is 0
+    this.productoTerminados = this.productos.filter((producto: any) => producto.stock_actual == 0);
+    console.log(this.productoTerminados)
+}
 
 
 
