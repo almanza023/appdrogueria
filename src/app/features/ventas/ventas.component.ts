@@ -49,6 +49,7 @@ export class VentasComponent {
         {id:1 , nombre:"FACTURADA"},
         {id:2 , nombre:"ANULADA"},
     ]
+    loading: boolean = false;
 
 
 
@@ -116,7 +117,9 @@ export class VentasComponent {
 
         }
         this.data=[];
-        this.service.postFilter(data)
+        this.loading = true;
+        setTimeout(() => {
+            this.service.postFilter(data)
         .subscribe(
             (response) => {
                 this.data = response.data;
@@ -128,6 +131,7 @@ export class VentasComponent {
                         life: 3000,
                     });
                 }
+                this.loading = false;
             },
             (error) => {
                 this.messageService.add({
@@ -136,8 +140,11 @@ export class VentasComponent {
                     detail: "Error al Consultar datos",
                     life: 3000,
                 });
+                this.loading = false;
             }
+
         );
+        }, 1000);
     }
 
     openNew(id:any) {

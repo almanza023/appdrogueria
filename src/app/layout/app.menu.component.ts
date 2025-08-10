@@ -88,6 +88,12 @@ export class AppMenuComponent implements OnInit {
 
                     },
                     {
+                        label: 'Ver Caja',
+                        icon: 'pi pi-fw pi-align-justify',
+                        command: () => this.reloadCurrentRoute('apertura-caja/ver-caja')
+
+                    },
+                    {
                         label: 'Clientes',
                         icon: 'pi pi-fw pi-align-justify',
                         command: () => this.reloadCurrentRoute('clientes')

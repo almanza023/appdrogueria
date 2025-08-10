@@ -95,11 +95,11 @@
                             Precio Venta
                             <p-sortIcon field="precio"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="stock_actual" *ngIf="rol=='1'">
+                        <th pSortableColumn="stock_actual">
                             Stock General
                             <p-sortIcon field="stock_actual"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="stock_actual" *ngIf="rol=='1'">
+                        <th pSortableColumn="stock_actual" >
                             Stock Por Bodegas
                             <p-sortIcon field="stock_actual"></p-sortIcon>
                         </th>
@@ -149,11 +149,11 @@
                             {{ item.precio | currency }}
                         </td>
 
-                        <td style="width: 32%; min-width: 10rem" *ngIf="rol=='1'">
+                        <td style="width: 32%; min-width: 10rem" >
                             <span class="p-column-title">Stock Actual</span>
-                            {{ item.stock_actual }}
+                            {{ item.stock_actual <= 0 ? 'AGOTADO' : item.stock_actual }}
                         </td>
-                        <td *ngIf="rol=='1'">
+                        <td>
                             <ul>
                                 <li *ngFor="let bodega of item.bodegas">
                                     <b>{{ bodega.bodega?.nombre }}: </b>{{ bodega.cantidad }}
@@ -396,7 +396,7 @@
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="codigo" class="font-bold mb-2">Código</label>
-                    <input type="number" pInputText formControlName="codigo" required>
+                    <input type="text" pInputText formControlName="codigo" required>
                     <small *ngIf="productoForm.get('codigo').invalid && productoForm.get('codigo').touched" class="p-error">Ingrese un código válido</small>
                     <small>Este es el código para escanear el producto</small>
                 </div>
@@ -425,12 +425,12 @@
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="precio" class="font-bold mb-2">Precio Venta</label>
-                    <input type="text" pInputText formControlName="precio" required>
+                    <p-inputNumber formControlName="precio" mode="decimal" ></p-inputNumber>
                     <small *ngIf="productoForm.get('precio').invalid && productoForm.get('precio').touched" class="p-error">Ingrese un precio válido</small>
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="precio" class="font-bold mb-2">Precio Compra</label>
-                    <input type="text" pInputText formControlName="precio_compra" required>
+                    <p-inputNumber formControlName="precio_compra" mode="decimal" ></p-inputNumber>
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="ubicacion" class="font-bold mb-2">Ubicación</label>

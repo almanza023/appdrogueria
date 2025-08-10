@@ -1,5 +1,5 @@
 <p-toast></p-toast>
-<app-loading *ngIf="loading"></app-loading>    
+<app-loading *ngIf="loading"></app-loading>
 <div class="p-fluid">
     <div class="card">
         <div class="field">
@@ -51,8 +51,8 @@
             </ng-template>
         </p-table>
 
-        <div class="field">
-            <h3>Total Compra: {{ calcularTotal() | currency }}</h3>
+        <div class="field text-right">
+            <h1>Total Compra: <b>{{ calcularTotal() | currency }}</b></h1>
             <h3>Cantidad Productos: {{ totalcantidad }}</h3>
         </div>
 
@@ -65,7 +65,7 @@
 <p-dialog header="Seleccionar Productos" [(visible)]="displayDialog" [modal]="true" [responsive]="true" [style]="{'width': '90vw'}">
     <div class="grid">
         <div class="col-12">
-            <p-table #dt [value]="productos" [rows]="10"
+            <p-table #dt [value]="productos" [rows]="20"
                 [globalFilterFields]="['nombre', 'precio', 'descripcion']"
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 30]" dataKey="id"
@@ -94,12 +94,17 @@
                         <th>Precio Venta</th>
                         <th>Precio Compra</th>
                         <th>Cantidad</th>
+                        <th>Código</th>
+                        <th>F. Vencimiento</th>
                         <th>Acciones</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-producto>
                     <tr>
-                        <td>{{ producto.nombre }}</td>
+                        <td><b>{{ producto.nombre }}</b> <br>
+                            {{producto.codigo}} <br>
+                            {{producto.fecha_vencimiento | date : "dd/MM/yyyy"}}
+                        </td>
                         <td>{{ producto.stock_actual }}</td>
                         <td>
                             <input pInputText type="number" [(ngModel)]="producto.precio" [ngModelOptions]="{ standalone: true }" min="1" [value]="1" />
@@ -110,6 +115,9 @@
                         <td>
                             <input pInputText type="number" [(ngModel)]="producto.cantidad" [ngModelOptions]="{ standalone: true }" min="1" [value]="1" (change)="producto.cantidad = producto.cantidad || 1" />
                         </td>
+                        <td><input pInputText type="text" [(ngModel)]="producto.codigo" /></td>
+                        <td><input pInputText type="date" [(ngModel)]="producto.fecha_vencimiento" /></td>
+
                         <td>
                             <p-button label="Agregar" icon="pi pi-plus" (click)="agregarProducto(producto); producto.cantidad = 0;"></p-button>
                         </td>

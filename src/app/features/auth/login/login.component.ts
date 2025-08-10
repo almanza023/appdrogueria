@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { stringify } from 'querystring';
 import { SeguridadService } from 'src/app/core/services/seguridad.service';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
     selector: 'app-login',
@@ -25,6 +27,7 @@ export class LoginComponent {
     usuario!: string;
     clave!: string;
     loading: boolean = false;
+    nombre:string="";
 
     constructor(
         private router: Router,
@@ -35,6 +38,7 @@ export class LoginComponent {
 
     ngOnInit(): void {
         this.limpiarLocalstore();
+        this.nombre=environment.nombre;
     }
 
     login() {

@@ -144,6 +144,8 @@ export class RegistroComprasComponent implements OnInit {
                 cantidad: producto.cantidad, // Usar la cantidad recibida desde la vista
                 precio: producto.precioCompra,
                 precio_venta: producto.precio,
+                fecha_vencimiento: producto.fecha_vencimiento,
+                codigo: producto.codigo,
             };
 
             this.crearDetalle(detalle);

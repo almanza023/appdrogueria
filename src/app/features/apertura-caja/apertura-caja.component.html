@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<app-loading *ngIf="loading"></app-loading>
 <div class="grid">
     <div class="col-12">
         <div class="card p-fluid">
@@ -8,12 +9,18 @@
                 </div>
             </div>
             <div class="field grid justify-content-start">
-                <div class="col-12 md:col-2">
+                <div class="col-12 md:col-2 flex gap-2">
                     <p-button
                         label="Crear"
                         styleClass="p-button-success"
                         icon="pi pi-plus"
                         (click)="openNew()"
+                    ></p-button>
+                    <p-button
+                        label="Consultar"
+                        styleClass="p-button-info"
+                        icon="pi pi-search"
+                        (click)="getDataAll()"
                     ></p-button>
                 </div>
             </div>
@@ -57,6 +64,10 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
+                        <th pSortableColumn="id">
+                            Código
+                            <p-sortIcon field="id"></p-sortIcon>
+                        </th>
                         <th pSortableColumn="fecha">
                             Fecha Apertura
                             <p-sortIcon field="fecha"></p-sortIcon>
@@ -90,6 +101,10 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
                     <tr [ngStyle]="{'background-color': item.estado === 1 ? '#abebc6' : 'transparent'}">
+                        <td style="width: 10%; min-width: 10rem">
+                            <span class="p-column-title">Código</span>
+                            {{ item.id }}
+                        </td>
                         <td style="width: 10%; min-width: 10rem">
                             <span class="p-column-title">Fecha Apertura</span>
                             {{ item.fecha }}
@@ -160,7 +175,7 @@
                         ></app-selector-bodega>
                     </div>
                 </div>
-                
+
                 <div class="field grid">
                     <label htmlFor="name3" class="col-12 mb-1 md:col-1 md:mb-0">
                         <b>Fecha Inicio</b>

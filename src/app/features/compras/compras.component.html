@@ -55,7 +55,7 @@
                 [value]="data"
                 [columns]="cols"
                 [rows]="10"
-                [globalFilterFields]="['nombre', 'posicion', 'numero', 'estado']"
+                [globalFilterFields]="['id', 'fecha', 'total', 'estado']"
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 30]"
                 [showCurrentPageReport]="true"
@@ -135,7 +135,7 @@
 
                         <td style="width: 26%; min-width: 10rem">
                             <span class="p-column-title">Estado</span>
-                            {{ item.estado === 1 ? 'CREADA' : item.estado === 2 ? 'FINALIZADO' : 'ANULADA' }}
+                            {{ item.estado == '1' ? 'CREADA' : item.estado == '2' ? 'FINALIZADO' : 'ANULADA' }}
                         </td>
                         <td>
                             <div class="flex">

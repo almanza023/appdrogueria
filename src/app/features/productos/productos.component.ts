@@ -267,10 +267,21 @@ export class ProductosComponent {
         this.productoForm.get('laboratorio').setValue('OTROS');
 
         // Validate that price is greater than purchase price
-        const precio = this.productoForm.get('precio')?.value;
-        const precioCompra = this.productoForm.get('precio_compra')?.value;
+        const precio = Number(this.productoForm.get('precio')?.value);
+        const precioCompra = Number(this.productoForm.get('precio_compra')?.value);
+        console.log(this.productoForm.value);
 
-        if (precioCompra && precio <= precioCompra) {
+        if (!precio || !precioCompra) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe ingresar precio de venta y precio de compra',
+                life: 3000,
+            });
+            return;
+        }
+
+        if (precio <= precioCompra) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -279,7 +290,6 @@ export class ProductosComponent {
             });
             return;
         }
-        console.log(this.productoForm.value)
         if (this.producto.id == undefined) {
             if (this.productoForm.valid) {
                 let data = this.productoForm.value;
@@ -507,9 +517,6 @@ export class ProductosComponent {
         }
     }
 
-    cargarInputTraslado() {
-
-    }
 
     agregarABodegaTraslado() {
         let stockActual = this.trasladoForm.get('stock_general')?.value; // Get the stock_actual from the productoForm

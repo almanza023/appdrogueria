@@ -37,6 +37,7 @@ export class RegistroVentasComponent implements OnInit {
     loading:boolean=false;
     empresa:any={};
     @ViewChild('dt') dt: Table | undefined;
+    buttonVisible: boolean = true;
 
     constructor(
         private productoService: ProductosService,
@@ -67,6 +68,7 @@ export class RegistroVentasComponent implements OnInit {
             }, 1500);
         }
         this.getEmpresa();
+        this.buttonVisible = true;
     }
 
     getEmpresa(){
@@ -202,7 +204,7 @@ export class RegistroVentasComponent implements OnInit {
                 .subscribe(
                     (response) => {
                         this.infoVenta = response.data;
-                        console.log(this.infoVenta);
+                       console.log(this.infoVenta);
                     },
                     (error) => {
                         this.messageService.add({
@@ -392,6 +394,7 @@ export class RegistroVentasComponent implements OnInit {
             reject: (type) => {
                 switch (type) {
                     case ConfirmEventType.REJECT:
+                        this.buttonVisible = false;
                         break;
                     case ConfirmEventType.CANCEL:
                         break;
@@ -570,5 +573,40 @@ return;
             windowPrint.print();
             windowPrint.close();
         }
+    }
+
+    quitarDetalle(detalle: any) {
+
+        this.ventaService.deleteDetalles(detalle).subscribe(
+            (response) => {
+                let severity = '';
+                let summary = '';
+                if (response.isSuccess == true) {
+                    severity = 'success';
+                    summary = 'Exitoso';
+                    this.detalles = response.data;
+
+                    //this.displayDialog = false;
+                } else {
+                    severity = 'warn';
+                    summary = 'Advertencia';
+                }
+                this.messageService.add({
+                    severity: severity,
+                    summary: summary,
+                    detail: response.message,
+                    life: 3000,
+                });
+            },
+            (error) => {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: error.error.data,
+                    life: 3000,
+                });
+            }
+        );
+
     }
 }

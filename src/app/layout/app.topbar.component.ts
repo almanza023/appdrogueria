@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MenuItem, MegaMenuItem } from 'primeng/api';
 import { LayoutService } from "./service/app.layout.service";
+import { environment } from 'src/environments/environment.prod';
 
 
 @Component({
@@ -25,9 +26,11 @@ export class AppTopBarComponent {
 
 
     pageIndex: number = 0;
+    nombre:string;
     ngOnInit() {
         this.nombreUsuario=localStorage.getItem('username')
         this.tieredItems = [];
         //this.layoutService.onMenuToggle()
+        this.nombre= environment.nombre;
     }
 }

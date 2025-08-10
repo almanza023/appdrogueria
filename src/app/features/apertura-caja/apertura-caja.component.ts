@@ -32,6 +32,7 @@ export class AperturaCajaComponent {
     posiciones:any[]=[];
     posicion:any={};
     objectModel:AperturaCaja={};
+    loading: boolean = false;
 
     nombreModulo: string = 'Módulo de Apertura de Caja';
     @ViewChild(SelectorBodegaComponent) selectBodega: SelectorBodegaComponent;
@@ -50,20 +51,25 @@ export class AperturaCajaComponent {
     }
 
     getDataAll() {
-        this.service.getAll().subscribe(
-            (response) => {
-                //console.log(response.data);
-                this.data = response.data;
-            },
-            (error) => {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Advertencia',
-                    detail: error.error.data,
-                    life: 3000,
-                });
-            }
-        );
+        this.data=[];
+        this.loading=true;
+        setTimeout(() => {
+            this.service.getAll().subscribe(
+                (response) => {
+                    //console.log(response.data);
+                    this.data = response.data;
+                },
+                (error) => {
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Advertencia',
+                        detail: error.error.data,
+                        life: 3000,
+                    });
+                }
+            );
+            this.loading = false;
+        }, 1000);
     }
 
 
