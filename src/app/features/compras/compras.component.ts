@@ -56,12 +56,22 @@ export class ComprasComponent {
         private messageService: MessageService
     ) {}
 
+    formatDate(date: Date): string {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+
 
 
     ngOnInit() {
         this.getDataAll();
         this.cols = [ ];
         this.statuses = [];
+
+        this.fechaInicial = this.formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)); // fecha inicial del mes actual
+        this.fechaFinal = this.formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)); // ultimo dia del mes
     }
 
     getDataAll() {

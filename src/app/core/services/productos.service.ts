@@ -95,6 +95,12 @@ export class ProductosService {
     return this.http.get<any>(url, {headers});
   }
 
+  getProductoPorCodigoBarra(item:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/productos-por-codigo-barra `;
+    return this.http.post<any>(url, item, {headers});
+  }
+
 
 
 

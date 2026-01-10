@@ -63,7 +63,7 @@ export class VentasComponent {
 
     ngOnInit() {
         this.rol = localStorage.getItem('rol');
-        this.buscar();
+
         this.cols = [ ];
         this.statuses = [];
 
@@ -268,6 +268,37 @@ export class VentasComponent {
             (total, venta) => Number(total) + Number(venta.total),
             0
         );
+    }
+
+    exportarExcel() {
+        import("xlsx").then(xlsx => {
+            const mappedData = this.data.map(venta => ({
+            id: venta.id,
+            fecha: venta.fecha,
+            total: venta.total,
+        estado: venta.estado == 0 ? 'PENDIENTE' :
+                venta.estado == 1 ? 'FACTURADA' :
+                venta.estado == 2 ? 'ANULADA' : 'DESCONOCIDO',
+            }));
+            const worksheet = xlsx.utils.json_to_sheet(mappedData);
+            worksheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }]; // Set column width
+            xlsx.utils.sheet_add_aoa(worksheet, [['ID', 'Fecha', 'Total', 'Estado']], { origin: 'A1' }); // Add headers
+            const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+            const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+            this.saveAsExcelFile(excelBuffer, "ventas");
+        });
+    }
+
+    saveAsExcelFile(buffer: any, fileName: string): void {
+        const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], { type: EXCEL_TYPE });
+        const url = window.URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${fileName}_export_${new Date().getTime()}${EXCEL_EXTENSION}`;
+        link.click();
+        window.URL.revokeObjectURL(url);
     }
 
 

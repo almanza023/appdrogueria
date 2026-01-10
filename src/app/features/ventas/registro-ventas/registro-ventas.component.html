@@ -2,20 +2,24 @@
 <app-loading *ngIf="loading"></app-loading>
 <div class="p-fluid">
     <div class="card">
-        <div class="field">
-            <label for="venta_id">N° Factura</label>
-            <input pInputText id="venta_id" [(ngModel)]="venta_id" (keyup.enter)="redireccionar(venta_id)" />
-<div class="field">
-    <p-button label="Buscar Venta" icon="pi pi-search" (click)="redireccionar(venta_id)" styleClass="p-button-info"></p-button>
-</div>
-
-        </div>
-        <div class="field">
-            <label for="fecha">Fecha</label>
-            <p-calendar id="fecha" [(ngModel)]="today" [showIcon]="true" dateFormat="yy-mm-dd" [disabled]="venta_id !== ''"></p-calendar>
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="venta_id">N° Factura</label>
+                <input pInputText id="venta_id" [(ngModel)]="venta_id" (keyup.enter)="redireccionar(venta_id)" />
+                <div class="mt-2">
+                    <p-button label="Buscar Venta" icon="pi pi-search" (click)="redireccionar(venta_id)"
+                        styleClass="p-button-info"></p-button>
+                </div>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="fecha">Fecha</label>
+                <p-calendar id="fecha" [(ngModel)]="today" [showIcon]="true" dateFormat="yy-mm-dd"
+                    [disabled]="venta_id !== ''"></p-calendar>
+            </div>
         </div>
         <div class="field" *ngIf="infoVenta.venta?.estado==0 || venta_id == ''">
-            <label for="fecha">Fecha Elaboración: <b>{{infoVenta.venta?.created_at | date:'dd/MM/yyyy HH:mm'}}</b></label>
+            <label for="fecha">Fecha Elaboración: <b>{{infoVenta.venta?.created_at | date:'dd/MM/yyyy
+                    HH:mm'}}</b></label>
         </div>
 
 
@@ -24,8 +28,38 @@
 
         </div>
 
-        <p-table [value]="detalles" [paginator]="true" [rows]="20"
-            dataKey="id" responsiveLayout="scroll">
+        <div class="card mt-3">
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="codigo_barra">Código de Barra</label>
+                    <input
+  pInputText
+  id="codigo_barra"
+  [(ngModel)]="codigo_barra"
+  (keyup.enter)="obtenerProducto(codigo_barra)"
+  (input)="onCodigoBarraInput()" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="nombre_producto">Nombre Producto</label>
+                    <input pInputText id="nombre_producto" [(ngModel)]="nombre_producto" readonly />
+                </div>
+            </div>
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="precio_producto">Precio</label>
+                    <input pInputText type="number" id="precio_producto" [(ngModel)]="precio_producto" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="cantidad_producto">Cantidad</label>
+                    <input pInputText type="number" id="cantidad_producto" [(ngModel)]="cantidad_producto" />
+                </div>
+            </div>
+            <div class="field">
+                <p-button label="Agregar a Detalles" icon="pi pi-plus" (click)="agregarDetalleTabla()"></p-button>
+            </div>
+        </div>
+
+        <p-table [value]="detalles" [paginator]="true" [rows]="20" dataKey="id" responsiveLayout="scroll">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Producto</th>
@@ -37,14 +71,15 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-detalle>
-                <tr >
+                <tr>
                     <td>{{ detalle.producto.nombre }}</td>
                     <td>{{ detalle.total_cantidad }}</td>
                     <td>{{ detalle.producto?.precio | currency }}</td>
                     <td>{{ detalle.descuento ? (detalle.descuento | currency) : '-' }}</td>
                     <td>{{ detalle.total_subtotal | currency }}</td>
-                    <td *ngIf="infoVenta.venta.estado==0" >
-                        <p-button label="Quitar" icon="pi pi-times" (click)="quitarDetalle(detalle)" styleClass="p-button-danger"></p-button>
+                    <td *ngIf="infoVenta.venta.estado==0">
+                        <p-button label="Quitar" icon="pi pi-times" (click)="quitarDetalle(detalle)"
+                            styleClass="p-button-danger"></p-button>
                     </td>
                 </tr>
             </ng-template>
@@ -59,18 +94,24 @@
         <div class="card" *ngIf="detalles.length > 0 && infoVenta.venta.estado==0">
             <h5>Medios de Pagos</h5>
             <div class="field flex align-items-center" *ngIf="infoVenta.venta.estado==0">
-                <app-selector-tipo-pago (itemSeleccionado)="tipopago = $event"></app-selector-tipo-pago>
+                <app-selector-tipo-pago (itemSeleccionado)="tipopago = $event; agregarPagoTotal()"></app-selector-tipo-pago>
                 <label for="valor" class="ml-2">Valor:</label>
-                <input pInputText type="number" id="valor" [(ngModel)]="venta.valor" (ngModelChange)="compararValor()" class="ml-2" />
-                <p *ngIf="venta.valor > calcularTotal()" style="color: red;" class="ml-2">El valor ingresado excede el total de la Venta.</p>
-                <p-button label="Agregar" icon="pi pi-plus" (click)="agregarPago()" styleClass="p-button-success ml-2"></p-button>
-                <p-button label="Agregar Total" icon="pi pi-plus" (click)="agregarPagoTotal()" styleClass="p-button-info ml-2"></p-button>
+                <input pInputText type="number" id="valor" [(ngModel)]="venta.valor" (ngModelChange)="compararValor()"
+                    class="ml-2" [ngModelOptions]="{ updateOn: 'blur' }" pInputNumber mode="decimal" minFractionDigits="0" maxFractionDigits="2" thousandSeparator="." />
+                <p *ngIf="venta.valor > calcularTotal()" style="color: red;" class="ml-2">El valor ingresado excede el
+                    total de la Venta.</p>
+                <p-button label="Agregar" icon="pi pi-plus" (click)="agregarPago()"
+                    styleClass="p-button-success ml-2"></p-button>
+                <p-button label="Agregar Total" icon="pi pi-plus" (click)="agregarPagoTotal()"
+                    styleClass="p-button-info ml-2"></p-button>
 
             </div>
             <div class="field" *ngIf="tipopago.id ==1">
                 <label for="dineroRecibido" class="mr-2">Dinero Recibido:</label>
-                <input pInputText type="number" id="dineroRecibido" [(ngModel)]="venta.dineroRecibido" (ngModelChange)="calcularCambio()" class="mr-2" />
-                <p *ngIf="venta.dineroRecibido > 0" style="color: green;" class="ml-2">Cambio a Devolver: {{cambio | currency }}</p>
+                <input pInputText type="number" id="dineroRecibido" [(ngModel)]="venta.dineroRecibido"
+                    (ngModelChange)="calcularCambio()" class="mr-2" />
+                <p *ngIf="venta.dineroRecibido > 0" style="color: green;" class="ml-2">Cambio a Devolver: {{cambio |
+                    currency }}</p>
             </div>
             <p-table [value]="pagos" [paginator]="true" [rows]="10" dataKey="id" responsiveLayout="scroll">
                 <ng-template pTemplate="header">
@@ -85,25 +126,30 @@
                         <td>{{ pago.tipo }}</td>
                         <td>{{ pago.valor | currency }}</td>
                         <td>
-                            <p-button label="Quitar" icon="pi pi-times" (click)="quitarPago(pago)" styleClass="p-button-danger"></p-button>
+                            <p-button label="Quitar" icon="pi pi-times" (click)="quitarPago(pago)"
+                                styleClass="p-button-danger"></p-button>
                         </td>
                     </tr>
                 </ng-template>
             </p-table>
-        <div class="field mt-3">
-            <label for="observaciones"><b>Observaciones</b></label>
-            <textarea id="observaciones" [readOnly]="infoVenta.venta.estado==1" pInputTextarea [(ngModel)]="venta.observaciones" rows="3" class="w-full"></textarea>
-        </div>
+            <div class="field mt-3">
+                <label for="observaciones"><b>Observaciones</b></label>
+                <textarea id="observaciones" [readOnly]="infoVenta.venta.estado==1" pInputTextarea
+                    [(ngModel)]="venta.observaciones" rows="3" class="w-full"></textarea>
+            </div>
 
-        <div class="field" *ngIf="infoVenta?.venta.estado==0">
-            <p-button *ngIf="buttonVisible" label="Finalizar Venta" icon="pi pi-check" styleClass="p-button-success" (click)="confirm1()"></p-button>
-        </div>
+            <div class="field" *ngIf="infoVenta?.venta.estado==0">
+                <p-button *ngIf="buttonVisible" label="Finalizar Venta" icon="pi pi-check" styleClass="p-button-success"
+                    (click)="confirm1()"></p-button>
+            </div>
 
         </div>
         <div class="field flex align-items-center justify-content-end">
-            <p-button label="Nueva Venta" icon="pi pi-plus" styleClass="p-button-success ml-2" (click)="redireccionar('0')"></p-button>
-            <app-ticket-pos *ngIf="infoVenta?.venta?.estado==1"  [data]="infoVenta"></app-ticket-pos>
-            <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger ml-2" (click)="redireccionarVentas()"></p-button>
+            <p-button label="Nueva Venta" icon="pi pi-plus" styleClass="p-button-success ml-2"
+                (click)="redireccionar('0')"></p-button>
+            <app-ticket-pos *ngIf="infoVenta?.venta?.estado==1" [data]="infoVenta"></app-ticket-pos>
+            <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger ml-2"
+                (click)="redireccionarVentas()"></p-button>
 
         </div>
 
@@ -113,27 +159,21 @@
 
 
 
-<p-dialog header="Seleccionar Productos" [(visible)]="displayDialog" [modal]="true" [responsive]="true" [style]="{'width': '90vw'}">
+<p-dialog header="Seleccionar Productos" [(visible)]="displayDialog" [modal]="true" [responsive]="true"
+    [style]="{'width': '90vw'}">
     <div class="grid">
         <div class="col-12">
             <p-table #dt [value]="productos" [rows]="20"
-                [globalFilterFields]="['nombre', 'precio', 'descripcion', 'codigo', 'laboratorio']"
-                [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 30]" dataKey="id"
-                responsiveLayout="scroll">
+                [globalFilterFields]="['nombre', 'precio', 'descripcion', 'codigo', 'laboratorio']" [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]" dataKey="id" responsiveLayout="scroll">
 
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column align-items-center">
                         <h5 class="m-0 mb-3">Información General de Productos</h5>
                         <span class="p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input
-                                (input)="onGlobalFilter(dt, $event)"
-                                pInputText
-                                type="text"
-                                placeholder="Buscar..."
-                                class="w-full sm:w-auto"
-                            />
+                            <input (input)="onGlobalFilter(dt, $event)" pInputText type="text" placeholder="Buscar..."
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
@@ -146,25 +186,33 @@
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-producto>
-                    <tr [ngStyle]="{'background-color': producto.etiqueta_vencimiento === 'Verde' ? '#abebc6' : producto.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : producto.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
-                        <td class="col-40"><h4><b>{{ producto.nombre }}</b></h4>
+                    <tr
+                        [ngStyle]="{'background-color': producto.etiqueta_vencimiento === 'Verde' ? '#abebc6' : producto.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : producto.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
+                        <td class="col-40">
+                            <h4><b>{{ producto.nombre }}</b></h4>
                             <br>
-                            <b>{{ producto.codigo  }}</b><br>
-                            <b>{{ producto.fecha_vencimiento | date:'dd/MM/yyyy'  }}</b>
+                            <b>{{ producto.codigo }}</b><br>
+                            <b>{{ producto.fecha_vencimiento | date:'dd/MM/yyyy' }}</b>
                             <br>
-                            <b><h5>{{ producto.precio | currency }}</h5></b>
+                            <b>
+                                <h5>{{ producto.precio | currency }}</h5>
+                            </b>
                         </td>
                         <td class="col-15">
-                            <input pInputText type="number" [(ngModel)]="producto.cantidad" [ngModelOptions]="{ standalone: true }" min="1" [value]="1" (change)="producto.cantidad = producto.cantidad || 1"  />
+                            <input pInputText type="number" [(ngModel)]="producto.cantidad"
+                                [ngModelOptions]="{ standalone: true }" min="1" [value]="1"
+                                (change)="producto.cantidad = producto.cantidad || 1" />
 
                         </td>
                         <td>
-                            <input pInputText type="number" [(ngModel)]="producto.descuento" [ngModelOptions]="{ standalone: true }" min="0" [value]="0" />
+                            <input pInputText type="number" [(ngModel)]="producto.descuento"
+                                [ngModelOptions]="{ standalone: true }" min="0" [value]="0" />
                         </td>
 
                         <td>
                             <br>
-                            <p-button label="Agregar" icon="pi pi-plus" (click)="agregarProducto(producto, producto.cantidad, producto.stock_actual); producto.cantidad = 0;"></p-button>
+                            <p-button label="Agregar" icon="pi pi-plus"
+                                (click)="agregarProducto(producto, producto.cantidad, producto.stock_actual); producto.cantidad = 0;"></p-button>
                             <!-- <p-button label="" icon="pi pi-times" styleClass="p-button-danger" (click)="quitarProducto(producto, producto.cantidad); producto.cantidad = 0;"></p-button> -->
                         </td>
 
@@ -176,4 +224,3 @@
 </p-dialog>
 
 <p-confirmDialog [style]="{width: '90%', maxWidth: '50vw'}"></p-confirmDialog>
-

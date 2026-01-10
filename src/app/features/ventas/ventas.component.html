@@ -49,9 +49,12 @@
     </div>
 </div>
 
-<div class="grid">
+<div class="grid" *ngIf="data && data.length > 0">
     <div class="col-12">
         <div class="card px-6 py-6">
+            <div class="mb-3">
+                <p-button label="Exportar Excel" icon="pi pi-download" (click)="exportarExcel()" styleClass="p-button-info"></p-button>
+            </div>
             <p-table
                 #dt
                 [value]="data"

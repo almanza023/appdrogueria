@@ -39,7 +39,13 @@ export class UsuarioService {
   putData(id:number, data: Usuario): Observable<any> {
     const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
     let url=`${environment.baseURL}/usuarios/${id}`;
-    return this.http.patch<any>(url, data, {headers});
+    return this.http.put<any>(url, data, {headers});
+  }
+
+  postCambioEstado(data:any): Observable<any> {
+    const headers = { 'Authorization': 'Bearer '+localStorage.getItem('token') }
+    let url=`${environment.baseURL}/usuarios/cambiarEstado`;
+    return this.http.post<any>(url, data, {headers});
   }
 
 

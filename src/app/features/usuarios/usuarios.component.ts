@@ -91,19 +91,14 @@ export class UsuariosComponent {
 
     bloqueoCliente(cliente: any) {
         this.deleteProductDialog = true;
-        this.persona = { ...cliente };
-        this.usuario.nombre = this.persona.nombre;
-        this.usuario.username = this.persona.username;
-        this.usuario.password = this.persona.password;
-        this.usuario.rol = this.persona.rol;
-        this.usuario.estado = !this.persona.estado;
-        this.persona.cambio_estado = true;
+        this.persona.id=cliente.id;
+        this.persona.id=cliente.id;
     }
 
     confirmDelete() {
         this.deleteProductDialog = false;
         this.usuarioService
-            .putData(this.persona.id, this.usuario)
+            .postCambioEstado(this.persona)
             .pipe(finalize(() => this.getDataAll()))
             .subscribe(
                 (response) => {

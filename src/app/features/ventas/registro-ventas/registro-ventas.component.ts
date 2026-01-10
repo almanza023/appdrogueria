@@ -38,6 +38,12 @@ export class RegistroVentasComponent implements OnInit {
     empresa:any={};
     @ViewChild('dt') dt: Table | undefined;
     buttonVisible: boolean = true;
+    codigo_barra: string = '';
+    nombre_producto: string = '';
+    precio_producto: string ='';
+    cantidad_producto: string = '';
+    productoBarra:any={};
+    private timeoutId: any;
 
     constructor(
         private productoService: ProductosService,
@@ -227,7 +233,7 @@ export class RegistroVentasComponent implements OnInit {
         );
     }
 
-    crear() {
+    crear(mostrarProducto:boolean=true) {
         this.loading=true;
         this.venta.user_id = localStorage.getItem('user_id');
         this.venta.fecha = this.today;
@@ -244,7 +250,7 @@ export class RegistroVentasComponent implements OnInit {
                         severity = 'success';
                         summary = 'Exitoso';
                         this.venta_id = response.data.id;
-                        this.displayDialog = true;
+                        this.displayDialog = mostrarProducto;
                     } else {
                         severity = 'warn';
                         summary = 'Advertencia';
@@ -608,5 +614,102 @@ return;
             }
         );
 
+    }
+
+    agregarDetalleTabla() {
+        if( this.productoBarra==undefined  || this.productoBarra==null){
+        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Advertencia',
+                            detail: 'Debe Consultar Un producto',
+                            life: 3000,
+                        });
+                    return;
+        }
+
+        if(this.cantidad_producto=='' || this.cantidad_producto==undefined){
+             this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'Debe ingresar una cantidad',
+                    life: 3000,
+                });
+            return;
+        }
+
+        if(Number(this.cantidad_producto)<=0){
+             this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'Debe ingresar una cantidad mayor a 0',
+                    life: 3000,
+                });
+            return;
+        }
+        this.loading=true;
+        if (this.venta_id == '' || this.venta_id == undefined) {
+         this.crear(false);
+            setTimeout(() => {
+                this.agregarProducto(this.productoBarra, Number(this.cantidad_producto), this.productoBarra.stock_actual);
+            }, 4500);
+            return;
+        }
+        this.agregarProducto(this.productoBarra, Number(this.cantidad_producto), this.productoBarra.stock_actual);
+        this.loading=false;
+        this.codigo_barra='';
+        this.nombre_producto='';
+        this.precio_producto='';
+        this.cantidad_producto='';
+    }
+
+    obtenerProducto(codigoBarra:any) {
+        let item={
+            codigo_barra:codigoBarra
+        };
+        this.productoService.getProductoPorCodigoBarra(item)
+        .subscribe(
+            (response) => {
+                let severity = '';
+                let summary = '';
+                if (response.isSuccess == true) {
+                    severity = 'success';
+                    summary = 'Exitoso';
+                    this.productoBarra=response.data;
+                    this.nombre_producto=response.data.nombre;
+                    this.precio_producto=response.data.precio;
+                } else {
+                    severity = 'warn';
+                    summary = 'No se encontro Producto con el Código';
+                }
+                this.messageService.add({
+                    severity: severity,
+                    summary: summary,
+                    detail: response.message,
+                    life: 3000,
+                });
+            },
+            (error) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Advertencia',
+                    detail: 'Error Buscar Producto',
+                    life: 3000,
+                });
+            }
+        );
+    }
+
+    onCodigoBarraInput() {
+    // Cancela la llamada anterior si el usuario sigue escribiendo
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    // Programa una nueva llamada después de que deje de escribir
+    this.timeoutId = setTimeout(() => {
+      if (this.codigo_barra.trim()) {
+        this.obtenerProducto(this.codigo_barra);
+      }
+    }, 500); // 500ms de espera
     }
 }
