@@ -111,6 +111,7 @@
                             Estado
                             <p-sortIcon field="estado"></p-sortIcon>
                         </th>
+                        <th> Método Pago</th>
                         <th></th>
                     </tr>
                 </ng-template>
@@ -142,6 +143,14 @@
                                 item.estado == 2 ? 'ANULADA' :
                                 ''
                             }}
+                        </td>
+                        <td>
+                        <ul *ngIf="item.pagos && item.pagos.length > 0">
+                            <li *ngFor="let pago of item.pagos">
+                                {{ pago.valor | currency }} - {{ pago.tipopago?.nombre }}
+                            </li>
+                        </ul>
+                        <span *ngIf="!item.pagos || item.pagos.length === 0">Sin pagos</span>
                         </td>
                         <td>
                             <div class="flex">

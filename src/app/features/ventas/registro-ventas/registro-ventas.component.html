@@ -28,7 +28,7 @@
 
         </div>
 
-        <div class="card mt-3">
+        <div class="card mt-3" *ngIf="infoVenta.venta?.estado==0 || venta_id == ''" >
             <div class="formgrid grid">
                 <div class="field col-12 md:col-6">
                     <label for="codigo_barra">Código de Barra</label>

@@ -187,11 +187,11 @@ export class RegistroComprasComponent implements OnInit {
     calcularTotal() {
         if (this.detalles && this.detalles.length > 0) {
             this.totalcompra = this.detalles.reduce(
-                (total, detalle) => total + detalle.total_subtotal,
+                (total, detalle) => total + Number(detalle.total_subtotal || 0),
                 0
             );
             this.totalcantidad = this.detalles.reduce(
-                (total, detalle) => total + detalle.total_cantidad,
+                (total, detalle) => total + Number(detalle.total_cantidad || 0),
                 0
             );
             return this.totalcompra;
@@ -225,8 +225,8 @@ export class RegistroComprasComponent implements OnInit {
             (response) => {
                 //console.log(response.data);
                 this.infoPedido = response.data;
-                this.totalcantidad='0';
-                this.totalcompra='0';
+                this.totalcantidad = 0;
+                this.totalcompra = 0;
             },
             (error) => {
                 this.messageService.add({
@@ -296,7 +296,6 @@ export class RegistroComprasComponent implements OnInit {
                     severity = 'success';
                     summary = 'Exitoso';
                     this.detalles=response.data;
-                    this.displayDialog = false;
                 } else {
                     severity = 'warn';
                     summary = 'Advertencia';

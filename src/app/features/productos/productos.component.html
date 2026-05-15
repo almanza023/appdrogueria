@@ -71,21 +71,10 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="categoria.nombre">
-                            Categoria
-                            <p-sortIcon field="categoria.nombre"></p-sortIcon>
-                        </th>
+
                         <th pSortableColumn="categoria.nombre">
                             Distribuidor
                             <p-sortIcon field="proveedor.nombre"></p-sortIcon>
-                        </th>
-                        <th pSortableColumn="nombre">
-                            Nombre
-                            <p-sortIcon field="nombre"></p-sortIcon>
-                        </th>
-                        <th pSortableColumn="laboratorio">
-                            Laboratorio
-                            <p-sortIcon field="laboratorio"></p-sortIcon>
                         </th>
                         <th pSortableColumn="descripcion">
                             Descripción
@@ -99,10 +88,7 @@
                             Stock General
                             <p-sortIcon field="stock_actual"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="stock_actual" >
-                            Stock Por Bodegas
-                            <p-sortIcon field="stock_actual"></p-sortIcon>
-                        </th>
+
                         <th pSortableColumn="precio_compra" *ngIf="rol=='1'">
                             Precio Compra
                             <p-sortIcon field="precio_compra"></p-sortIcon>
@@ -124,22 +110,12 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
                     <tr [ngStyle]="{'background-color': item.etiqueta_vencimiento === 'Verde' ? '#abebc6' : item.etiqueta_vencimiento === 'Rojo' ? '#ffccb3' : item.etiqueta_vencimiento === 'Amarillo' ? '#ffe0b2' : 'transparent'}">
-                        <td style="width: 10%; min-width: 10rem">
-                            <span class="p-column-title">Categoria</span>
-                            {{ item.categoria.nombre }}
-                        </td>
+
                         <td style="width: 10%; min-width: 10rem">
                             <span class="p-column-title">Distribuidor</span>
                             {{ item.proveedor?.nombre }}
                         </td>
-                        <td style="width: 32%; min-width: 10rem">
-                            <span class="p-column-title">Nombre</span>
-                            {{ item.nombre }}
-                        </td>
-                        <td style="width: 32%; min-width: 10rem">
-                            <span class="p-column-title">Laboratorio</span>
-                            {{ item.laboratorio }}
-                        </td>
+
                         <td style="width: 32%; min-width: 10rem">
                             <span class="p-column-title">Descripción</span>
                             {{ item.descripcion }}
@@ -153,13 +129,7 @@
                             <span class="p-column-title">Stock Actual</span>
                             {{ item.stock_actual <= 0 ? 'AGOTADO' : item.stock_actual }}
                         </td>
-                        <td>
-                            <ul>
-                                <li *ngFor="let bodega of item.bodegas">
-                                    <b>{{ bodega.bodega?.nombre }}: </b>{{ bodega.cantidad }}
-                                </li>
-                            </ul>
-                        </td>
+
                         <td style="width: 32%; min-width: 10rem" *ngIf="rol=='1'">
                             <span class="p-column-title">Precio Compra</span>
                             {{ item.precio_compra  | currency }}
