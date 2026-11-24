@@ -351,12 +351,12 @@
             <div class="grid">
                 <div class="col-12 md:col-4">
                     <label htmlFor="categoria" class="font-bold mb-2">Categoría</label>
-                    <app-selector-categoria (itemSeleccionado)="productoForm.get('categoria_id').setValue($event.id)" required></app-selector-categoria>
+                    <app-selector-categoria (itemSeleccionado)="productoForm.get('categoria_id').setValue($event?.id ?? '')" required></app-selector-categoria>
                     <small *ngIf="productoForm.get('categoria_id').invalid && (productoForm.get('categoria_id').dirty || productoForm.get('categoria_id').touched)" class="p-error">Seleccione una categoría</small>
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="proveedor" class="font-bold mb-2">Distribuidor</label>
-                    <app-selector-proveedor (itemSeleccionado)="productoForm.get('proveedor_id').setValue($event.id)" required></app-selector-proveedor>
+                    <app-selector-proveedor (itemSeleccionado)="productoForm.get('proveedor_id').setValue($event?.id ?? '')" required></app-selector-proveedor>
                     <small *ngIf="productoForm.get('proveedor_id').invalid && (productoForm.get('proveedor_id').dirty || productoForm.get('proveedor_id').touched)" class="p-error">Seleccione un proveedor</small>
                 </div>
                 <div class="col-12 md:col-4">
@@ -404,7 +404,7 @@
                 </div>
                 <div class="col-12 md:col-4">
                     <label htmlFor="ubicacion" class="font-bold mb-2">Ubicación</label>
-                    <app-selector-ubicacion (itemSeleccionado)="productoForm.get('ubicacion_id').setValue($event.id)" required></app-selector-ubicacion>
+                    <app-selector-ubicacion (itemSeleccionado)="productoForm.get('ubicacion_id').setValue($event?.id ?? '')" required></app-selector-ubicacion>
                     <small *ngIf="productoForm.get('ubicacion_id').invalid && (productoForm.get('ubicacion_id').dirty || productoForm.get('ubicacion_id').touched)" class="p-error">Seleccione una ubicación</small>
                 </div>
 

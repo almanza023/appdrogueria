@@ -160,9 +160,20 @@ export class ProductosComponent {
     openNew() {
         this.producto = {};
         this.producto.editar = false;
+        if (!this.productoForm.contains('detalles')) {
+            this.productoForm.addControl(
+                'detalles',
+                this.fb.array([], Validators.required)
+            );
+        }
         this.clienteDialog = true;
         this.reiniciarFormulario();
         this.getBodegas();
+
+        setTimeout(() => {
+            this.categoriaComponent?.seleccionarPorNombre('OTROS');
+            this.ubicacionComponent?.seleccionarPrimero();
+        });
     }
 
     deleteSelectedProducts() {
@@ -177,41 +188,52 @@ export class ProductosComponent {
     }
 
     editProduct(item: any) {
-        console.log(this.producto);
         this.producto = { ...item };
-        this.clienteDialog = true;
         this.producto.editar = true;
-        this.categoriaComponent.filtrar(this.producto.categoria_id);
-        this.proveedorComponent.filtrar(this.producto.proveedor_id);
-        this.ubicacionComponent.filtrar(this.producto.ubicacion_id);
-        this.productoForm
-            .get('categoria_id')
-            .setValue(this.producto.categoria_id);
-        this.productoForm
-            .get('ubicacion_id')
-            .setValue(this.producto.ubicacion_id);
-        this.productoForm
-            .get('proveedor_id')
-            .setValue(this.producto.proveedor_id);
-        this.productoForm.get('nombre').setValue(this.producto.nombre);
-        this.productoForm.get('codigo').setValue(this.producto.codigo);
-        this.productoForm
-            .get('descripcion')
-            .setValue(this.producto.descripcion);
-        this.productoForm
-            .get('laboratorio')
-            .setValue(this.producto.laboratorio);
-        this.productoForm.get('lote').setValue(this.producto.lote);
-        this.productoForm.get('precio').setValue(this.producto.precio);
-        this.productoForm.get('precio_compra').setValue(this.producto.precio_compra || 0);
-        this.productoForm
-            .get('stock_actual')
-            .setValue(this.producto.stock_actual);
-        this.productoForm
-            .get('fecha_vencimiento')
-            .setValue(this.producto.fecha_vencimiento);
 
+        const categoriaId =
+            this.producto.categoria_id ?? this.producto.categoria?.id ?? '';
+        const proveedorId =
+            this.producto.proveedor_id ?? this.producto.proveedor?.id ?? '';
+        const ubicacionId =
+            this.producto.ubicacion_id ??
+            this.producto.ubicacion?.id ??
+            this.producto.mesa_id ??
+            this.producto.mesa?.id ??
+            '';
+        const nombre = this.producto.nombre || this.producto.descripcion || '';
+        const descripcion =
+            this.producto.descripcion || this.producto.nombre || '';
+        const fechaVencimiento = this.producto.fecha_vencimiento
+            ? String(this.producto.fecha_vencimiento).substring(0, 10)
+            : '';
+
+        this.productoForm.patchValue({
+            categoria_id: categoriaId,
+            ubicacion_id: ubicacionId,
+            proveedor_id: proveedorId,
+            nombre: nombre,
+            codigo: this.producto.codigo ?? '',
+            descripcion: descripcion,
+            laboratorio: this.producto.laboratorio || 'OTRO',
+            lote: this.producto.lote ?? '',
+            precio: this.producto.precio ?? 0,
+            precio_compra: this.producto.precio_compra ?? 0,
+            stock_actual: this.producto.stock_actual ?? 0,
+            fecha_vencimiento: fechaVencimiento,
+        });
+
+        if (this.productoForm.contains('detalles')) {
             this.productoForm.removeControl('detalles');
+        }
+
+        this.clienteDialog = true;
+
+        setTimeout(() => {
+            this.categoriaComponent?.seleccionarPorNombre('OTROS');
+            this.proveedorComponent?.filtrar(proveedorId);
+            this.ubicacionComponent?.filtrar(ubicacionId);
+        });
     }
 
     bloqueoCliente(cliente: any) {
@@ -303,17 +325,8 @@ export class ProductosComponent {
                 });
             }
         } else {
-            if (this.productoForm.valid) {
-                let data = this.productoForm.value;
-                this.actualizar(this.producto.id, data);
-            } else {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Advertencia',
-                    detail: 'Formulario inválido. Verifique los campos.',
-                    life: 3000,
-                });
-            }
+            let data = this.productoForm.value;
+            this.actualizar(this.producto.id, data);
         }
         this.clienteDialog = false;
         this.reiniciarFormulario();
@@ -435,12 +448,11 @@ export class ProductosComponent {
     }
 
     reiniciarFormulario() {
-        this.categoriaComponent.reiniciarComponente();
-        this.ubicacionComponent.reiniciarComponente();
-        this.proveedorComponent.reiniciarComponente();
+        this.categoriaComponent?.reiniciarComponente();
+        this.ubicacionComponent?.reiniciarComponente();
+        this.proveedorComponent?.reiniciarComponente();
         this.productoForm.reset();
         this.productoForm.get('precio_compra')?.setValue(0);
-
     }
 
     agregarABodega() {

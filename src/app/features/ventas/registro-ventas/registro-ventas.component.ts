@@ -652,6 +652,11 @@ return;
             setTimeout(() => {
                 this.agregarProducto(this.productoBarra, Number(this.cantidad_producto), this.productoBarra.stock_actual);
             }, 4500);
+            this.loading=false;
+            this.codigo_barra='';
+            this.nombre_producto='';
+            this.precio_producto='';
+            this.cantidad_producto='';
             return;
         }
         this.agregarProducto(this.productoBarra, Number(this.cantidad_producto), this.productoBarra.stock_actual);

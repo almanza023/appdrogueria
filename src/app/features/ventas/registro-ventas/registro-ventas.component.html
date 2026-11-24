@@ -180,9 +180,10 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th class="col-40">Nombre</th>
+                        <th class="col-40">Nombre</th>                        
                         <th class="col-15">Cantidad</th>
                         <th class="col-15">Precio Descuento</th>
+                        <th>Acciones</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-producto>
@@ -197,10 +198,13 @@
                             <b>
                                 <h5>{{ producto.precio | currency }}</h5>
                             </b>
+                            <span class="p-column-title">Stock</span>
+                            <b>Stock: {{ producto.stock_actual <= 0 ? 'AGOTADO' : producto.stock_actual }}</b>
                         </td>
+
                         <td class="col-15">
                             <input pInputText type="number" [(ngModel)]="producto.cantidad"
-                                [ngModelOptions]="{ standalone: true }" min="1" [value]="1"
+                                [ngModelOptions]="{ standalone: true }" min="1" [max]="producto.stock_actual" [value]="1"
                                 (change)="producto.cantidad = producto.cantidad || 1" />
 
                         </td>
