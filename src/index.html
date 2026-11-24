@@ -6,8 +6,35 @@
     <title>MEDIEXPRESS</title>
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link id="theme-css" rel="stylesheet" type="text/css" href="assets/layout/styles/theme/lara-light-indigo/theme.css">
+    <script>
+        (function () {
+            function recargarUnaVez(clave) {
+                try {
+                    if (!sessionStorage.getItem(clave)) {
+                        sessionStorage.setItem(clave, '1');
+                        window.location.reload();
+                    }
+                } catch (e) {}
+            }
+            window.addEventListener('error', function (e) {
+                var t = e && e.target;
+                if (t && t.tagName === 'SCRIPT' && /\.js(\?|$)/.test(t.src || '')) {
+                    recargarUnaVez('reload_script_' + t.src);
+                }
+            }, true);
+            window.addEventListener('unhandledrejection', function (e) {
+                var msg = (e && e.reason && (e.reason.message || String(e.reason))) || '';
+                if (/ChunkLoadError|Loading chunk .* failed/i.test(msg)) {
+                    recargarUnaVez('reload_chunk_' + msg);
+                }
+            });
+        })();
+    </script>
 </head>
 
 <body>
